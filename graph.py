@@ -75,22 +75,6 @@ class Graph:
             self.set_of_elb[elb].discard((to, frm))
             del self.vertices[to][frm]
 
-    def relabel(self, oldvlb_to_newvlb, oldelb_to_newelb):
-        for v in self.vertices.values():
-            v.vlb = oldvlb_to_newvlb[v.vlb]
-            for e in v.edges.values():
-                e.elb = oldelb_to_newelb[e.elb]
-
-        def relabel_key(old_dict, old_to_new):
-            new_dict = collections.defaultdict(set)
-            for elb, elements in self.old_dict.items():
-                new_dict[old_to_new[elb]] = elements
-            return new_dict
-
-        self.set_of_vlb = relabel_key(self.set_of_vlb, oldvlb_to_newvlb)
-        self.set_of_elb = relabel_key(self.set_of_elb, oldelb_to_newelb)
-
-
     def remove_edge_with_label(self, elb):
         for frm, to in self.set_of_elb[elb]:
             self.remove_edge(frm, to)
