@@ -159,11 +159,14 @@ class gSpan(object):
                 g = Graph(gid = self.counter.next(), is_undirected = self.is_undirected)
                 g.add_vertex(0, vlb)
                 self.frequent_size1_subgraphs.append(g)
-                self.report_size1(g, support = cnt)
+                if self.min_num_vertices <= 1:
+                    self.report_size1(g, support = cnt)
             else:
                 continue
                 for g in self.graphs.values():
                     g.remove_vertex_with_vlb(vlb)
+        if self.min_num_vertices > 1:
+            self.counter = itertools.count()
         # remove edges of infrequent vev or ...
         for vevlb, cnt in vevlb_counter.items():
             if cnt >= self.min_support:
@@ -205,6 +208,8 @@ class gSpan(object):
 
     def report(self):
         self.frequent_subgraphs.append(copy.copy(self.DFScode))
+        if self.DFScode.get_num_vertices() < self.min_num_vertices:
+            return
         g = self.DFScode.to_graph(gid = self.counter.next(), is_undirected = self.is_undirected)
         g.display()
         print '\nSupport: {}'.format(self.support)
@@ -333,7 +338,7 @@ class gSpan(object):
                         flag = True
                         newfrm = DFScode_min[rmpath_i].frm
                         for e in edges:
-                            forward_root[(e.elb, r.vertices[e.to].vlb)].append(PDFS(g.gid, e, p))
+                            forward_root[(e.elb, g.vertices[e.to].vlb)].append(PDFS(g.gid, e, p))
             if self.verbose: print 'project_is_min: 3', flag
 
             if not flag:
