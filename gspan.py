@@ -14,7 +14,7 @@ class DFSedge(object):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return 'frm={}, to={}, vevlb={}'.format(self.frm, self.to, self.vevlb)
+        return '(frm={}, to={}, vevlb={})'.format(self.frm, self.to, self.vevlb)
 
 class DFScode(list):
     """
@@ -22,6 +22,18 @@ class DFScode(list):
     """
     def __init__(self):
         self.rmpath = list()
+
+    def __eq__(self, other):
+        la, lb = len(self), len(other)
+        if la != lb:
+            return False
+        for i in range(la):
+            if self[i] != other[i]:
+                return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def push_back(self, frm, to, vevlb):
         self.append(DFSedge(frm, to, vevlb))
@@ -409,12 +421,3 @@ class gSpan(object):
             self.DFScode.append(DFSedge(frm, maxtoc + 1, (VACANT_VERTEX_LABEL, elb, vlb2)))
             self.subgraph_mining(forward_root[(frm, elb, vlb2)])
             self.DFScode.pop()
-
-
-
-
-
-
-
-
-
