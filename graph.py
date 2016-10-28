@@ -1,19 +1,20 @@
-import collections
-INVALID_EDGE_ID = -1
-INVALID_VERTEX_ID = -1
-INVALID_EDGE_LABEL = -1
-INVALID_VERTX_LABEL = -1
-INVALID_GRAPH_ID = -1
+import collections, itertools
+VACANT_EDGE_ID = -1
+VACANT_VERTEX_ID = -1
+VACANT_EDGE_LABEL = -1
+VACANT_VERTEX_LABEL = -1
+VACANT_GRAPH_ID = -1
+AUTO_EDGE_ID = -1
 
 class Edge(object):
-    def __init__(self, eid = INVALID_EDGE_ID, frm = INVALID_VERTEX_ID, to = INVALID_VERTEX_ID, elb = INVALID_EDGE_LABEL):
+    def __init__(self, eid = VACANT_EDGE_ID, frm = VACANT_VERTEX_ID, to = VACANT_VERTEX_ID, elb = VACANT_EDGE_LABEL):
         self.eid = eid
         self.frm = frm
         self.to = to
         self.elb = elb
 
 class Vertex(object):
-    def __init__(self, vid = INVALID_VERTEX_ID, vlb = INVALID_VERTX_LABEL):
+    def __init__(self, vid = VACANT_VERTEX_ID, vlb = VACANT_VERTEX_LABEL):
         self.vid = vid
         self.vlb = vlb
         self.edges = dict()
@@ -21,23 +22,31 @@ class Vertex(object):
     def add_edge(self, eid, frm, to, elb):
         self.edges[to] = Edge(eid, frm, to, elb)
 
+
 class Graph(object):
-    def __init__(self, gid = INVALID_GRAPH_ID, is_undirected = True):
+    def __init__(self, gid = VACANT_GRAPH_ID, is_undirected = True, eid_auto_increment = True):
         self.gid = gid
         self.is_undirected = is_undirected
         self.vertices = dict()
         self.set_of_elb = collections.defaultdict(set)
         self.set_of_vlb = collections.defaultdict(set)
+        self.counter = itertools.count()
 
     def get_num_vertices(self):
         return len(self.vertices)
 
     def add_vertex(self, vid, vlb):
+        if vid in self.vertices:
+            return self
         self.vertices[vid] = Vertex(vid, vlb)
         self.set_of_vlb[vlb].add(vid)
         return self
 
     def add_edge(self, eid, frm, to, elb):
+        if frm is self.vertices and to in self.vertices and to in self.vertices[frm].edges:
+                return self
+        if self.eid_auto_increment:
+            eid = self.counter.next()
         self.vertices[frm].add_edge(eid, frm, to, elb)
         self.set_of_elb[elb].add((frm, to))
         if self.is_undirected:
@@ -95,9 +104,3 @@ class Graph(object):
             if frm in self.set_of_vlb[vlb1] and to in self.set_of_vlb[vlb2]:
                 self.remove_edge(frm, to)
         return self
-
-class FrequentGraph(Graph):
-    def __init__(self, gid = INVALID_GRAPH_ID, is_undirected = True):
-        super(FrequentGraph, self).__init__(gid = gid, is_undirected = is_undirected)
-        self.DFScode = []
-        self.
