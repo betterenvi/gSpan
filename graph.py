@@ -30,6 +30,7 @@ class Graph(object):
         self.vertices = dict()
         self.set_of_elb = collections.defaultdict(set)
         self.set_of_vlb = collections.defaultdict(set)
+        self.eid_auto_increment = eid_auto_increment
         self.counter = itertools.count()
 
     def get_num_vertices(self):
@@ -61,14 +62,14 @@ class Graph(object):
             for to in v.edges.keys():
                 e = v.edges[to] # (vid, to) and (to, vid) have same elb
                 self.set_of_elb[e.elb].discard((to, vid))
-                del self.vertices[to][vid]
+                del self.vertices[to].edges[vid]
         else:
             for frm in self.vertices.keys():
                 v = self.vertices[frm]
                 if vid in v.edges.keys():
                     e = self.vertices[frm].edges[vid]
                     self.set_of_elb[e.elb].discard((frm, vid))
-                    del self.vertices[frm][vid]
+                    del self.vertices[frm].edges[vid]
 
         v = self.vertices[vid]
         for to in v.edges.keys():
@@ -82,25 +83,38 @@ class Graph(object):
     def remove_edge(self, frm, to):
         elb = self.vertices[frm].edges[to].elb
         self.set_of_elb[elb].discard((frm, to))
-        del self.vertices[frm][to]
+        del self.vertices[frm].edges[to]
         if self.is_undirected:
             self.set_of_elb[elb].discard((to, frm))
-            del self.vertices[to][frm]
+            del self.vertices[to].edges[frm]
         return self
 
     def remove_edge_with_elb(self, elb):
-        for frm, to in self.set_of_elb[elb]:
+        for frm, to in list(self.set_of_elb[elb]): # use list. otherwise, 'Set changed size during iteration'
             self.remove_edge(frm, to)
         return self
 
     def remove_vertex_with_vlb(self, vlb):
-        for vid in self.set_of_vlb[vlb]:
+        for vid in list(self.set_of_vlb[vlb]):
             self.remove_vertex(vid)
         return self
 
     def remove_edge_with_vevlb(self, vevlb):
         vlb1, elb, vlb2 = vevlb
-        for frm, to in self.set_of_elb[elb]:
+        for frm, to in list(self.set_of_elb[elb]):
             if frm in self.set_of_vlb[vlb1] and to in self.set_of_vlb[vlb2]:
                 self.remove_edge(frm, to)
         return self
+
+    def display(self):
+        print 't # {}'.format(self.gid)
+        for vid in self.vertices:
+            print 'v {} {}'.format(vid, self.vertices[vid].vlb)
+        for frm in self.vertices:
+            edges = self.vertices[frm].edges
+            for to in edges:
+                if self.is_undirected:
+                    if frm < to:
+                        print 'e {} {} {}'.format(frm, to, edges[to].elb)
+                else:
+                    print 'e {} {} {}'.format(frm, to, edges[to].elb)

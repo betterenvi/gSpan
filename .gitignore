@@ -30,3 +30,4 @@ trash*
 *.ilg
 *.idx
 nohup.out
+.ipynb_checkpoints/*

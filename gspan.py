@@ -7,6 +7,15 @@ class DFSedge(object):
         self.to = to
         self.vevlb = vevlb
 
+    def __eq__(self, other):
+        return self.frm == other.frm and self.to == other.to and self.vevlb == self.vevlb
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return 'frm={}, to={}, vevlb={}'.format(self.frm, self.to, self.vevlb)
+
 class DFScode(list):
     """
     DFScode is a list of DFSedge.
@@ -18,9 +27,10 @@ class DFScode(list):
         self.append(DFSedge(frm, to, vevlb))
         return self
 
-    def to_graph(self):
-        g = Graph(VACANT_GRAPH_ID, is_undirected = self.is_undirected, eid_auto_increment = True)
-        for frm, to, (vlb1, elb, vlb2) in self:
+    def to_graph(self, gid = VACANT_GRAPH_ID, is_undirected = True):
+        g = Graph(gid, is_undirected = is_undirected, eid_auto_increment = True)
+        for dfsedge in self:
+            frm, to, (vlb1, elb, vlb2) = dfsedge.frm, dfsedge.to, dfsedge.vevlb
             if vlb1 != VACANT_VERTEX_LABEL:
                 g.add_vertex(frm, vlb1)
             if vlb2 != VACANT_VERTEX_LABEL:
@@ -34,7 +44,7 @@ class DFScode(list):
     def build_rmpath(self):
         self.rmpath = list()
         old_frm = None
-        for i in range(len(self), -1, -1):
+        for i in range(len(self) - 1, -1, -1):
             dfsedge = self[i]
             frm, to, vevlb = dfsedge.frm, dfsedge.to, dfsedge.vevlb
             if frm < to and (old_frm == None or to == old_frm):
@@ -43,7 +53,7 @@ class DFScode(list):
         return self
 
     def get_num_vertices(self):
-        return len(set([frm for dfsedge in self] + [to for dfsedge in self]))
+        return len(set([dfsedge.frm for dfsedge in self] + [dfsedge.to for dfsedge in self]))
 
 class PDFS(object):
     def __init__(self, gid = VACANT_GRAPH_ID, edge = None, prev = None):
@@ -79,13 +89,14 @@ class History(object):
         self.edges = self.edges[::-1]
 
     def has_vertex(self, vid):
-        return self.vertices_used[vid]
+        return self.vertices_used[vid] == 1
 
     def has_edge(self, eid):
-        return self.edges_used[eid]
+        return self.edges_used[eid] == 1
 
 class gSpan(object):
-    def __init__(self, database_file_name, min_support = 10, min_num_vertices = 1, max_num_vertices = float('inf'), , max_ngraphs = float('inf'), is_undirected = True):
+    def __init__(self, database_file_name, min_support = 10, min_num_vertices = 1, max_num_vertices = float('inf'),
+        max_ngraphs = float('inf'), is_undirected = True, verbose = False):
         self.database_file_name = database_file_name
         self.graphs = dict()
         self.max_ngraphs = max_ngraphs
@@ -94,9 +105,11 @@ class gSpan(object):
         self.min_num_vertices = min_num_vertices
         self.max_num_vertices = max_num_vertices
         self.DFScode = DFScode()
+        self.support = 0
         self.frequent_size1_subgraphs = list()
         self.frequent_subgraphs = list() # include subgraphs with any num(but >= 2, <= max_num_vertices) of vertices
         self.counter = itertools.count()
+        self.verbose = verbose
 
         if max_num_vertices < min_num_vertices:
             print 'max number of vertices can not be smaller than min number of that.'
@@ -113,10 +126,10 @@ class gSpan(object):
                 if cols[0] == 't':
                     if tgraph != None:
                         self.graphs[graph_cnt] = tgraph
-                    if cols[-1] == '-1' or graph_cnt + 1 >= self.max_ngraphs:
+                        graph_cnt += 1
+                    if cols[-1] == '-1' or graph_cnt >= self.max_ngraphs:
                         break
                     tgraph, edge_cnt = Graph(graph_cnt, is_undirected = self.is_undirected), 0
-                    graph_cnt += 1
                 elif cols[0] == 'v':
                     tgraph.add_vertex(cols[1], cols[2])
                 elif cols[0] == 'e':
@@ -128,26 +141,31 @@ class gSpan(object):
     def generate_1edge_frequent_subgraphs(self):
         vlb_counter = collections.Counter()
         vevlb_counter = collections.Counter()
-        edge_weight = 0.5 if self.is_undirected else 1
-        for g in graphs.values():
+        vlb_counted = set()
+        vevlb_counted = set()
+        for g in self.graphs.values():
             for v in g.vertices.values():
-                vlb_counter[v.vlb] += 1
+                vlb_counter[v.vlb] += 1 if (g.gid, v.vlb) not in vlb_counted else 0
+                vlb_counted.add((g.gid, v.vlb))
                 for to, e in v.edges.items():
                     vlb1, vlb2 = v.vlb, g.vertices[to].vlb
                     if self.is_undirected and vlb1 > vlb2:
                         vlb1, vlb2 = vlb2, vlb1
-                    vevlb_counter[(vlb1, e.elb, vlb2)] += edge_weight
+                    vevlb_counter[(vlb1, e.elb, vlb2)] += 1 if (g.gid, (vlb1, e.elb, vlb2)) not in vevlb_counter else 0
+                    vevlb_counted.add((g.gid, (vlb1, e.elb, vlb2)))
         # remove infrequent vertices or add frequent vertices
         for vlb, cnt in vlb_counter.items():
             if cnt >= self.min_support:
                 g = Graph(gid = self.counter.next(), is_undirected = self.is_undirected)
                 g.add_vertex(0, vlb)
                 self.frequent_size1_subgraphs.append(g)
+                self.report_size1(g, support = cnt)
             else:
-                for g in graphs.values():
+                continue
+                for g in self.graphs.values():
                     g.remove_vertex_with_vlb(vlb)
         # remove edges of infrequent vev or ...
-        for vevlb, cnt in vevlb_counter.item():
+        for vevlb, cnt in vevlb_counter.items():
             if cnt >= self.min_support:
                 continue
                 # g = Graph(gid = self.counter.next(), is_undirected = self.is_undirected)
@@ -156,7 +174,8 @@ class gSpan(object):
                 # g.add_edge(0, 0, 1, vevlb[1])
                 # self.frequent_subgraphs.append(g)
             else:
-                for g in graphs.values():
+                continue
+                for g in self.graphs.values():
                     g.remove_edge_with_vevlb(vevlb)
 
         #return copy.copy(self.frequent_subgraphs)
@@ -169,7 +188,7 @@ class gSpan(object):
             for vid, v in g.vertices.items():
                 edges = self.get_forward_root_edges(g, vid)
                 for e in edges:
-                    root[(v.vlb, e.elb, g[e.to].vlb)].append(PDFS(gid, e, None))
+                    root[(v.vlb, e.elb, g.vertices[e.to].vlb)].append(PDFS(gid, e, None))
 
         for vevlb, projected in root.items():
             self.DFScode.append(DFSedge(0, 1, vevlb))
@@ -179,8 +198,17 @@ class gSpan(object):
     def get_support(self, projected):
         return len(set([pdfs.gid for pdfs in projected]))
 
+    def report_size1(self, g, support):
+        g.display()
+        print '\nSupport: {}'.format(support)
+        print '\n-----------------\n'
+
     def report(self):
         self.frequent_subgraphs.append(copy.copy(self.DFScode))
+        g = self.DFScode.to_graph(gid = self.counter.next(), is_undirected = self.is_undirected)
+        g.display()
+        print '\nSupport: {}'.format(self.support)
+        print '\n-----------------\n'
 
     def get_forward_root_edges(self, g, frm):
         result = []
@@ -194,11 +222,11 @@ class gSpan(object):
         if e1 == e2:
             return None
         gsize = g.get_num_vertices()
-        assert e1.frm >= 0 and e1.frm < gsize
-        assert e1.to >= 0 and e1.to < gsize
-        assert e2.to >= 0 and e2.to < gsize
+        # assert e1.frm >= 0 and e1.frm < gsize
+        # assert e1.to >= 0 and e1.to < gsize
+        # assert e2.to >= 0 and e2.to < gsize
         for to, e in g.vertices[e2.to].edges.items():
-            if history.has_edge(e.eid) and e.to != e1.frm:
+            if history.has_edge(e.eid) or e.to != e1.frm:
                 continue
             # return e # ok? or:
             # if self.is_undirected:
@@ -213,9 +241,9 @@ class gSpan(object):
     def get_forward_pure_edges(self, g, rm_edge, min_vlb, history):
         result = []
         gsize = g.get_num_vertices()
-        assert rm_edge.to >= 0 and rm_edge.to < gsize
+        # assert rm_edge.to >= 0 and rm_edge.to < gsize
         for to, e in g.vertices[rm_edge.to].edges.items():
-            assert e.to >= 0 and e.to < gsize
+            # assert e.to >= 0 and e.to < gsize
             if min_vlb <= g.vertices[e.to].vlb and (not history.has_vertex(e.to)):
                 result.append(e)
         return result
@@ -223,8 +251,8 @@ class gSpan(object):
     def get_forward_rmpath_edges(self, g, rm_edge, min_vlb, history):
         result = []
         gsize = g.get_num_vertices()
-        assert rm_edge.to >= 0 and rm_edge.to < gsize
-        assert rm_edge.frm >= 0 and rm_edge.frm < gsize
+        # assert rm_edge.to >= 0 and rm_edge.to < gsize
+        # assert rm_edge.frm >= 0 and rm_edge.frm < gsize
         to_vlb = g.vertices[rm_edge.to].vlb
         for to, e in g.vertices[rm_edge.frm].edges.items():
             new_to_vlb = g.vertices[to].vlb
@@ -243,14 +271,16 @@ class gSpan(object):
     def is_min(self):
         if len(self.DFScode) == 1:
             return True
-        g = self.DFScode.to_graph()
+        g = self.DFScode.to_graph(gid = VACANT_GRAPH_ID, is_undirected = self.is_undirected)
         DFScode_min = DFScode()
         root = collections.defaultdict(Projected)
         for vid, v in g.vertices.items():
             edges = self.get_forward_root_edges(g, vid)
             for e in edges:
-                root[(v.vlb, edges.elb, g.vertices[edges.to].vlb)].append(PDFS(g.gid, e, None))
+                root[(v.vlb, e.elb, g.vertices[e.to].vlb)].append(PDFS(g.gid, e, None))
         min_vevlb = min(root.keys())
+        if self.verbose:
+            print 'is_min: bef p_is_min', min_vevlb, self.DFScode.get_num_vertices(), len(self.DFScode)
         DFScode_min.append(DFSedge(0, 1, min_vevlb))
 
         def project_is_min(projected):
@@ -268,13 +298,16 @@ class gSpan(object):
                     history = History(g, p)
                     e = self.get_backward_edge(g, history.edges[rmpath[i]], history.edges[rmpath[0]], history)
                     if e != None:
+                        if self.verbose: print 'project_is_min: 6', e.frm, e.to
                         backward_root[e.elb].append(PDFS(g.gid, e, p))
                         newto = DFScode_min[rmpath[i]].frm
                         flag = True
+            if self.verbose: print 'project_is_min: 1', flag, DFScode_min.get_num_vertices(), len(DFScode_min)
             if flag:
                 backward_min_elb = min(backward_root.keys())
                 DFScode_min.append(DFSedge(maxtoc, newto, (VACANT_VERTEX_LABEL, backward_min_elb, VACANT_VERTEX_LABEL)))
                 idx = len(DFScode_min) - 1
+                if self.verbose: print 'project_is_min: 5', idx, len(self.DFScode), self.DFScode[idx], DFScode_min[idx]
                 if self.DFScode[idx] != DFScode_min[idx]:
                     return False
                 return project_is_min(backward_root[backward_min_elb])
@@ -289,7 +322,7 @@ class gSpan(object):
                     newfrm = maxtoc
                     for e in edges:
                         forward_root[(e.elb, g.vertices[e.to].vlb)].append(PDFS(g.gid, e, p))
-
+            if self.verbose: print 'project_is_min: 2', flag
             for rmpath_i in rmpath:
                 if flag:
                     break
@@ -301,22 +334,33 @@ class gSpan(object):
                         newfrm = DFScode_min[rmpath_i].frm
                         for e in edges:
                             forward_root[(e.elb, r.vertices[e.to].vlb)].append(PDFS(g.gid, e, p))
+            if self.verbose: print 'project_is_min: 3', flag
 
             if not flag:
                 return True
 
             forward_min_evlb = min(forward_root.keys())
+            if self.verbose: print 'project_is_min: 4', forward_min_evlb, newfrm
             DFScode_min.append(DFSedge(newfrm, maxtoc + 1, (VACANT_VERTEX_LABEL, forward_min_evlb[0], forward_min_evlb[1])))
             idx = len(DFScode_min) - 1
             if self.DFScode[idx] != DFScode_min[idx]:
                 return False
             return project_is_min(forward_root[forward_min_evlb])
 
+        res = project_is_min(root[min_vevlb])
+        if self.verbose:
+            print 'is_min: leave'
+        return res
+
     def subgraph_mining(self, projected):
-        support = self.get_support(projected)
-        if support < self.min_support:
+        self.support = self.get_support(projected)
+        if self.support < self.min_support:
+            if self.verbose:
+                print 'subgraph_mining: < min_support'
             return
         if not self.is_min():
+            if self.verbose:
+                print 'subgraph_mining: not min'
             return
         self.report()
 
@@ -335,7 +379,7 @@ class gSpan(object):
             for rmpath_i in rmpath[::-1]:
                 e = self.get_backward_edge(g, history.edges[rmpath_i], history.edges[rmpath[0]], history)
                 if e != None:
-                    forward_root[(self.DFScode[rmpath_i].frm, e.elb)].append(PDFS(g.gid, e, p))
+                    backward_root[(self.DFScode[rmpath_i].frm, e.elb)].append(PDFS(g.gid, e, p))
             # pure forward
             if num_vertices >= self.max_num_vertices:
                 continue
