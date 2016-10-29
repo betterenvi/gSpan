@@ -224,6 +224,8 @@ class gSpan(object):
     def run(self):
         self.read_graphs()
         self.generate_1edge_frequent_subgraphs()
+        if self.max_num_vertices < 2:
+            return
         root = collections.defaultdict(Projected)
         for gid, g in self.graphs.items():
             for vid, v in g.vertices.items():
