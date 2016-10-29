@@ -118,3 +118,24 @@ class Graph(object):
                         print 'e {} {} {}'.format(frm, to, edges[to].elb)
                 else:
                     print 'e {} {} {}'.format(frm, to, edges[to].elb)
+
+    def plot(self):
+        import networkx as nx
+        import matplotlib.pyplot as plt
+        gnx = nx.Graph() if self.is_undirected else nx.DiGraph()
+        vlbs = {vid:v.vlb for vid, v in self.vertices.items()}
+        elbs = {}
+        for vid, v in self.vertices.items():
+            gnx.add_node(vid, label = v.vlb)
+        for vid, v in self.vertices.items():
+            for to, e in v.edges.items():
+                if (not self.is_undirected) or vid < to:
+                    gnx.add_edge(vid, to, label = e.elb)
+                    elbs[(vid, to)] = e.elb
+        fsize = (min(16, 1 * len(self.vertices)), min(16, 1 * len(self.vertices)))
+        plt.figure(3,figsize=fsize)
+        pos = nx.spectral_layout(gnx)
+        nx.draw_networkx(gnx, pos, arrows=True, with_labels=True, labels=vlbs)
+        #nx.draw_networkx_labels(gnx,pos)
+        nx.draw_networkx_edge_labels(gnx, pos, edge_labels=elbs)
+        plt.show()

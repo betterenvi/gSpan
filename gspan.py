@@ -118,7 +118,7 @@ class History(object):
 
 class gSpan(object):
     def __init__(self, database_file_name, min_support = 10, min_num_vertices = 1, max_num_vertices = float('inf'),
-        max_ngraphs = float('inf'), is_undirected = True, verbose = False):
+        max_ngraphs = float('inf'), is_undirected = True, verbose = False, visualize = False, where = False):
         self.database_file_name = database_file_name
         self.graphs = dict()
         self.max_ngraphs = max_ngraphs
@@ -132,6 +132,8 @@ class gSpan(object):
         self.frequent_subgraphs = list() # include subgraphs with any num(but >= 2, <= max_num_vertices) of vertices
         self.counter = itertools.count()
         self.verbose = verbose
+        self.visualize = visualize
+        self.where = where
         self.timestamps = dict()
         if self.max_num_vertices < self.min_num_vertices:
             print 'Max number of vertices can not be smaller than min number of that.\nSet max_num_vertices = min_num_vertices.'
@@ -160,6 +162,7 @@ class gSpan(object):
                     if tgraph != None:
                         self.graphs[graph_cnt] = tgraph
                         graph_cnt += 1
+                        tgraph = None
                     if cols[-1] == '-1' or graph_cnt >= self.max_ngraphs:
                         break
                     tgraph = Graph(graph_cnt, is_undirected = self.is_undirected, eid_auto_increment = True)
@@ -167,6 +170,9 @@ class gSpan(object):
                     tgraph.add_vertex(cols[1], cols[2])
                 elif cols[0] == 'e':
                     tgraph.add_edge(AUTO_EDGE_ID, cols[1], cols[2], cols[3])
+            if tgraph != None: # adapt to input files that do not end with 't # -1'
+                self.graphs[graph_cnt] = tgraph
+
         return self
 
     @record_timestamp
@@ -239,13 +245,17 @@ class gSpan(object):
         print '\nSupport: {}'.format(support)
         print '\n-----------------\n'
 
-    def report(self):
+    def report(self, projected):
         self.frequent_subgraphs.append(copy.copy(self.DFScode))
         if self.DFScode.get_num_vertices() < self.min_num_vertices:
             return
         g = self.DFScode.to_graph(gid = self.counter.next(), is_undirected = self.is_undirected)
         g.display()
         print '\nSupport: {}'.format(self.support)
+        if self.visualize:
+            g.plot()
+        if self.where:
+            print 'where:', list(set([p.gid for p in projected]))
         print '\n-----------------\n'
 
     def get_forward_root_edges(self, g, frm):
@@ -403,7 +413,7 @@ class gSpan(object):
             if self.verbose:
                 print 'subgraph_mining: not min'
             return
-        self.report()
+        self.report(projected)
 
         num_vertices = self.DFScode.get_num_vertices()
         self.DFScode.build_rmpath()
