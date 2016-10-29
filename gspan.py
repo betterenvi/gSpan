@@ -8,7 +8,7 @@ class DFSedge(object):
         self.vevlb = vevlb
 
     def __eq__(self, other):
-        return self.frm == other.frm and self.to == other.to and self.vevlb == self.vevlb
+        return self.frm == other.frm and self.to == other.to and self.vevlb == other.vevlb
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -34,6 +34,9 @@ class DFScode(list):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __repr__(self):
+        return ''.join(['[', ','.join([str(dfsedge) for dfsedge in self]), ']'])
 
     def push_back(self, frm, to, vevlb):
         self.append(DFSedge(frm, to, vevlb))
@@ -141,12 +144,11 @@ class gSpan(object):
                         graph_cnt += 1
                     if cols[-1] == '-1' or graph_cnt >= self.max_ngraphs:
                         break
-                    tgraph, edge_cnt = Graph(graph_cnt, is_undirected = self.is_undirected), 0
+                    tgraph = Graph(graph_cnt, is_undirected = self.is_undirected, eid_auto_increment = True)
                 elif cols[0] == 'v':
                     tgraph.add_vertex(cols[1], cols[2])
                 elif cols[0] == 'e':
-                    tgraph.add_edge(edge_cnt, cols[1], cols[2], cols[3])
-                    edge_cnt += 1
+                    tgraph.add_edge(AUTO_EDGE_ID, cols[1], cols[2], cols[3])
 
         return self
 
@@ -245,7 +247,7 @@ class gSpan(object):
         for to, e in g.vertices[e2.to].edges.items():
             if history.has_edge(e.eid) or e.to != e1.frm:
                 continue
-            # return e # ok? or:
+            # return e # ok? if reture here, then self.DFScodep[0] != DFScode_min[0] should be checked in is_min(). or:
             # if self.is_undirected:
             #     if e1.elb < e.elb or (e1.elb == e.elb and g.vertices[e1.to].vlb <= g.vertices[e2.to].vlb):
             #         return e
@@ -286,6 +288,7 @@ class gSpan(object):
         return result
 
     def is_min(self):
+        if self.verbose: print 'is_min: checking', self.DFScode
         if len(self.DFScode) == 1:
             return True
         g = self.DFScode.to_graph(gid = VACANT_GRAPH_ID, is_undirected = self.is_undirected)
@@ -296,9 +299,10 @@ class gSpan(object):
             for e in edges:
                 root[(v.vlb, e.elb, g.vertices[e.to].vlb)].append(PDFS(g.gid, e, None))
         min_vevlb = min(root.keys())
-        if self.verbose:
-            print 'is_min: bef p_is_min', min_vevlb, self.DFScode.get_num_vertices(), len(self.DFScode)
+        if self.verbose: print 'is_min: bef p_is_min', min_vevlb, self.DFScode.get_num_vertices(), len(self.DFScode)
         DFScode_min.append(DFSedge(0, 1, min_vevlb))
+        # if self.DFScode[0] != DFScode_min[0]: # no need to check because of pruning in get_*_edge*
+        #     return False
 
         def project_is_min(projected):
             DFScode_min.build_rmpath()
@@ -324,7 +328,7 @@ class gSpan(object):
                 backward_min_elb = min(backward_root.keys())
                 DFScode_min.append(DFSedge(maxtoc, newto, (VACANT_VERTEX_LABEL, backward_min_elb, VACANT_VERTEX_LABEL)))
                 idx = len(DFScode_min) - 1
-                if self.verbose: print 'project_is_min: 5', idx, len(self.DFScode), self.DFScode[idx], DFScode_min[idx]
+                if self.verbose: print 'project_is_min: 5', idx, len(self.DFScode)
                 if self.DFScode[idx] != DFScode_min[idx]:
                     return False
                 return project_is_min(backward_root[backward_min_elb])
@@ -405,7 +409,7 @@ class gSpan(object):
                 forward_root[(maxtoc, e.elb, g.vertices[e.to].vlb)].append(PDFS(g.gid, e, p))
             # rmpath forward
             for rmpath_i in rmpath:
-                edges = self.get_forward_rmpath_edges(g, history.edges[rmpath[0]], min_vlb, history)
+                edges = self.get_forward_rmpath_edges(g, history.edges[rmpath_i], min_vlb, history)
                 for e in edges:
                     forward_root[(self.DFScode[rmpath_i].frm, e.elb, g.vertices[e.to].vlb)].append(PDFS(g.gid, e, p))
 
