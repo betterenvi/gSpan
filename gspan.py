@@ -1,5 +1,12 @@
-import collections, itertools, copy
+import collections, itertools, copy, time
 from graph import *
+
+def record_timestamp(func):
+    def deco(self):
+        self.timestamps[func.__name__ + '_in'] = time.time()
+        func(self)
+        self.timestamps[func.__name__ + '_out'] = time.time()
+    return deco
 
 class DFSedge(object):
     def __init__(self, frm, to, vevlb):
@@ -125,11 +132,22 @@ class gSpan(object):
         self.frequent_subgraphs = list() # include subgraphs with any num(but >= 2, <= max_num_vertices) of vertices
         self.counter = itertools.count()
         self.verbose = verbose
+        self.timestamps = dict()
+        if self.max_num_vertices < self.min_num_vertices:
+            print 'Max number of vertices can not be smaller than min number of that.\nSet max_num_vertices = min_num_vertices.'
+            self.max_num_vertices = self.min_num_vertices
 
-        if max_num_vertices < min_num_vertices:
-            print 'max number of vertices can not be smaller than min number of that.'
-            max_num_vertices = min_num_vertices
+    def time_stats(self):
+        func_names = ['read_graphs', 'run']
+        time_deltas = collections.defaultdict(float)
+        for fn in func_names:
+            time_deltas[fn] = self.timestamps[fn + '_out'] - self.timestamps[fn + '_in']
+        print 'Read:\t{} \tseconds'.format(round(time_deltas['read_graphs'], 2))
+        print 'Mine:\t{} \tseconds'.format(round(time_deltas['run'] - time_deltas['read_graphs'], 2))
+        print 'Total:\t{} \tseconds'.format(round(time_deltas['run'], 2))
+        return self
 
+    @record_timestamp
     def read_graphs(self):
         self.graphs = dict()
         with open(self.database_file_name) as f:
@@ -149,9 +167,9 @@ class gSpan(object):
                     tgraph.add_vertex(cols[1], cols[2])
                 elif cols[0] == 'e':
                     tgraph.add_edge(AUTO_EDGE_ID, cols[1], cols[2], cols[3])
-
         return self
 
+    @record_timestamp
     def generate_1edge_frequent_subgraphs(self):
         vlb_counter = collections.Counter()
         vevlb_counter = collections.Counter()
@@ -194,9 +212,9 @@ class gSpan(object):
                 continue
                 for g in self.graphs.values():
                     g.remove_edge_with_vevlb(vevlb)
-
         #return copy.copy(self.frequent_subgraphs)
 
+    @record_timestamp
     def run(self):
         self.read_graphs()
         self.generate_1edge_frequent_subgraphs()
@@ -207,6 +225,7 @@ class gSpan(object):
                 for e in edges:
                     root[(v.vlb, e.elb, g.vertices[e.to].vlb)].append(PDFS(gid, e, None))
 
+        if self.verbose: print 'run:', root.keys()
         for vevlb, projected in root.items():
             self.DFScode.append(DFSedge(0, 1, vevlb))
             self.subgraph_mining(projected)
@@ -233,12 +252,12 @@ class gSpan(object):
         result = []
         v_frm = g.vertices[frm]
         for to, e in v_frm.edges.items():
-            if v_frm.vlb <= g.vertices[to].vlb:
+            if (not self.is_undirected) or v_frm.vlb <= g.vertices[to].vlb:
                 result.append(e)
         return result
 
     def get_backward_edge(self, g, e1, e2, history):
-        if e1 == e2:
+        if self.is_undirected and e1 == e2:
             return None
         gsize = g.get_num_vertices()
         # assert e1.frm >= 0 and e1.frm < gsize
@@ -248,13 +267,14 @@ class gSpan(object):
             if history.has_edge(e.eid) or e.to != e1.frm:
                 continue
             # return e # ok? if reture here, then self.DFScodep[0] != DFScode_min[0] should be checked in is_min(). or:
-            # if self.is_undirected:
-            #     if e1.elb < e.elb or (e1.elb == e.elb and g.vertices[e1.to].vlb <= g.vertices[e2.to].vlb):
-            #         return e
-            # else:
+            if self.is_undirected:
+                if e1.elb < e.elb or (e1.elb == e.elb and g.vertices[e1.to].vlb <= g.vertices[e2.to].vlb):
+                    return e
+            else:
+                if g.vertices[e1.frm].vlb < g.vertices[e2.to] or (g.vertices[e1.frm].vlb == g.vertices[e2.to] and  e1.elb <= e.elb):
+                    return e
+            # if e1.elb < e.elb or (e1.elb == e.elb and g.vertices[e1.to].vlb <= g.vertices[e2.to].vlb):
             #     return e
-            if e1.elb < e.elb or (e1.elb == e.elb and g.vertices[e1.to].vlb <= g.vertices[e2.to].vlb):
-                return e
         return None
 
     def get_forward_pure_edges(self, g, rm_edge, min_vlb, history):
@@ -312,7 +332,7 @@ class gSpan(object):
 
             backward_root = collections.defaultdict(Projected)
             flag, newto = False, 0,
-            for i in range(len(rmpath) - 1, 0, -1):
+            for i in range(len(rmpath) - 1, 0 if self.is_undirected else -1, -1):
                 if flag:
                     break
                 for p in projected:
@@ -377,7 +397,7 @@ class gSpan(object):
         self.support = self.get_support(projected)
         if self.support < self.min_support:
             if self.verbose:
-                print 'subgraph_mining: < min_support'
+                print 'subgraph_mining: < min_support', self.DFScode
             return
         if not self.is_min():
             if self.verbose:
@@ -425,3 +445,5 @@ class gSpan(object):
             self.DFScode.append(DFSedge(frm, maxtoc + 1, (VACANT_VERTEX_LABEL, elb, vlb2)))
             self.subgraph_mining(forward_root[(frm, elb, vlb2)])
             self.DFScode.pop()
+
+        return self

@@ -46,6 +46,7 @@ def main():
         min_num_vertices = opt_dict['-l'], max_num_vertices = opt_dict['-u'],
         max_ngraphs = opt_dict['-n'], is_undirected = opt_dict['-d'] == 0, verbose = opt_dict['-v'] == 1)
     gs.run()
+    gs.time_stats()
 
 if __name__ == '__main__':
     main()
