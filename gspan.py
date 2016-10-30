@@ -4,8 +4,10 @@ from graph import *
 def record_timestamp(func):
     def deco(self):
         self.timestamps[func.__name__ + '_in'] = time.time()
+        self.timestamps[func.__name__ + '_c_in'] = time.clock()
         func(self)
         self.timestamps[func.__name__ + '_out'] = time.time()
+        self.timestamps[func.__name__ + '_c_out'] = time.clock()
     return deco
 
 class DFSedge(object):
@@ -143,10 +145,11 @@ class gSpan(object):
         func_names = ['read_graphs', 'run']
         time_deltas = collections.defaultdict(float)
         for fn in func_names:
-            time_deltas[fn] = self.timestamps[fn + '_out'] - self.timestamps[fn + '_in']
-        print 'Read:\t{} \tseconds'.format(round(time_deltas['read_graphs'], 2))
-        print 'Mine:\t{} \tseconds'.format(round(time_deltas['run'] - time_deltas['read_graphs'], 2))
-        print 'Total:\t{} \tseconds'.format(round(time_deltas['run'], 2))
+            time_deltas[fn] = round(self.timestamps[fn + '_out'] - self.timestamps[fn + '_in'], 2)
+            time_deltas[fn + '_c'] = round(self.timestamps[fn + '_c_out'] - self.timestamps[fn + '_c_in'], 2)
+        print 'Read:\t{} s\t(CPU: {} s)'.format(time_deltas['read_graphs'], time_deltas['read_graphs_c'])
+        print 'Mine:\t{} s\t(CPU: {} s)'.format(time_deltas['run'] - time_deltas['read_graphs'], time_deltas['run_c'] - time_deltas['read_graphs_c'])
+        print 'Total:\t{} s\t(CPU: {} s)'.format(time_deltas['run'], time_deltas['run_c'])
         return self
 
     @record_timestamp
@@ -233,7 +236,7 @@ class gSpan(object):
                 for e in edges:
                     root[(v.vlb, e.elb, g.vertices[e.to].vlb)].append(PDFS(gid, e, None))
 
-        if self.verbose: print 'run:', root.keys()
+        #if self.verbose: print 'run:', root.keys()
         for vevlb, projected in root.items():
             self.DFScode.append(DFSedge(0, 1, vevlb))
             self.subgraph_mining(projected)
@@ -331,7 +334,7 @@ class gSpan(object):
             for e in edges:
                 root[(v.vlb, e.elb, g.vertices[e.to].vlb)].append(PDFS(g.gid, e, None))
         min_vevlb = min(root.keys())
-        if self.verbose: print 'is_min: bef p_is_min', min_vevlb, self.DFScode.get_num_vertices(), len(self.DFScode)
+        #if self.verbose: print 'is_min: bef p_is_min', min_vevlb, self.DFScode.get_num_vertices(), len(self.DFScode)
         DFScode_min.append(DFSedge(0, 1, min_vevlb))
         # if self.DFScode[0] != DFScode_min[0]: # no need to check because of pruning in get_*_edge*
         #     return False
@@ -351,16 +354,16 @@ class gSpan(object):
                     history = History(g, p)
                     e = self.get_backward_edge(g, history.edges[rmpath[i]], history.edges[rmpath[0]], history)
                     if e != None:
-                        if self.verbose: print 'project_is_min: 6', e.frm, e.to
+                        #if self.verbose: print 'project_is_min: 6', e.frm, e.to
                         backward_root[e.elb].append(PDFS(g.gid, e, p))
                         newto = DFScode_min[rmpath[i]].frm
                         flag = True
-            if self.verbose: print 'project_is_min: 1', flag, DFScode_min.get_num_vertices(), len(DFScode_min)
+            #if self.verbose: print 'project_is_min: 1', flag, DFScode_min.get_num_vertices(), len(DFScode_min)
             if flag:
                 backward_min_elb = min(backward_root.keys())
                 DFScode_min.append(DFSedge(maxtoc, newto, (VACANT_VERTEX_LABEL, backward_min_elb, VACANT_VERTEX_LABEL)))
                 idx = len(DFScode_min) - 1
-                if self.verbose: print 'project_is_min: 5', idx, len(self.DFScode)
+                #if self.verbose: print 'project_is_min: 5', idx, len(self.DFScode)
                 if self.DFScode[idx] != DFScode_min[idx]:
                     return False
                 return project_is_min(backward_root[backward_min_elb])
@@ -375,7 +378,7 @@ class gSpan(object):
                     newfrm = maxtoc
                     for e in edges:
                         forward_root[(e.elb, g.vertices[e.to].vlb)].append(PDFS(g.gid, e, p))
-            if self.verbose: print 'project_is_min: 2', flag
+            #if self.verbose: print 'project_is_min: 2', flag
             for rmpath_i in rmpath:
                 if flag:
                     break
@@ -387,13 +390,13 @@ class gSpan(object):
                         newfrm = DFScode_min[rmpath_i].frm
                         for e in edges:
                             forward_root[(e.elb, g.vertices[e.to].vlb)].append(PDFS(g.gid, e, p))
-            if self.verbose: print 'project_is_min: 3', flag
+            #if self.verbose: print 'project_is_min: 3', flag
 
             if not flag:
                 return True
 
             forward_min_evlb = min(forward_root.keys())
-            if self.verbose: print 'project_is_min: 4', forward_min_evlb, newfrm
+            #if self.verbose: print 'project_is_min: 4', forward_min_evlb, newfrm
             DFScode_min.append(DFSedge(newfrm, maxtoc + 1, (VACANT_VERTEX_LABEL, forward_min_evlb[0], forward_min_evlb[1])))
             idx = len(DFScode_min) - 1
             if self.DFScode[idx] != DFScode_min[idx]:
@@ -401,19 +404,16 @@ class gSpan(object):
             return project_is_min(forward_root[forward_min_evlb])
 
         res = project_is_min(root[min_vevlb])
-        if self.verbose:
-            print 'is_min: leave'
+        #if self.verbose: print 'is_min: leave'
         return res
 
     def subgraph_mining(self, projected):
         self.support = self.get_support(projected)
         if self.support < self.min_support:
-            if self.verbose:
-                print 'subgraph_mining: < min_support', self.DFScode
+            #if self.verbose: print 'subgraph_mining: < min_support', self.DFScode
             return
         if not self.is_min():
-            if self.verbose:
-                print 'subgraph_mining: not min'
+            #if self.verbose: print 'subgraph_mining: not min'
             return
         self.report(projected)
 
