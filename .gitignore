@@ -31,3 +31,5 @@ trash*
 *.idx
 nohup.out
 .ipynb_checkpoints/*
+*.docx
+*.pdf

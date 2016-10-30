@@ -124,7 +124,7 @@ class Graph(object):
             import networkx as nx
             import matplotlib.pyplot as plt
         except Exception, e:
-            print e
+            print 'Can not plot graph:', e
             return
         gnx = nx.Graph() if self.is_undirected else nx.DiGraph()
         vlbs = {vid:v.vlb for vid, v in self.vertices.items()}
