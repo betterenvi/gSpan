@@ -4,10 +4,10 @@ from graph import *
 def record_timestamp(func):
     def deco(self):
         self.timestamps[func.__name__ + '_in'] = time.time()
-        self.timestamps[func.__name__ + '_c_in'] = time.clock()
+        #self.timestamps[func.__name__ + '_c_in'] = time.clock()
         func(self)
         self.timestamps[func.__name__ + '_out'] = time.time()
-        self.timestamps[func.__name__ + '_c_out'] = time.clock()
+        #self.timestamps[func.__name__ + '_c_out'] = time.clock()
     return deco
 
 class DFSedge(object):
@@ -146,10 +146,10 @@ class gSpan(object):
         time_deltas = collections.defaultdict(float)
         for fn in func_names:
             time_deltas[fn] = round(self.timestamps[fn + '_out'] - self.timestamps[fn + '_in'], 2)
-            time_deltas[fn + '_c'] = round(self.timestamps[fn + '_c_out'] - self.timestamps[fn + '_c_in'], 2)
-        print 'Read:\t{} s\t(CPU: {} s)'.format(time_deltas['read_graphs'], time_deltas['read_graphs_c'])
-        print 'Mine:\t{} s\t(CPU: {} s)'.format(time_deltas['run'] - time_deltas['read_graphs'], time_deltas['run_c'] - time_deltas['read_graphs_c'])
-        print 'Total:\t{} s\t(CPU: {} s)'.format(time_deltas['run'], time_deltas['run_c'])
+            #time_deltas[fn + '_c'] = round(self.timestamps[fn + '_c_out'] - self.timestamps[fn + '_c_in'], 2)
+        print 'Read:\t{} s'.format(time_deltas['read_graphs'])#, time_deltas['read_graphs_c'])
+        print 'Mine:\t{} s'.format(time_deltas['run'] - time_deltas['read_graphs'])#, time_deltas['run_c'] - time_deltas['read_graphs_c'])
+        print 'Total:\t{} s'.format(time_deltas['run'])#, time_deltas['run_c'])
         return self
 
     @record_timestamp

@@ -120,8 +120,12 @@ class Graph(object):
                     print 'e {} {} {}'.format(frm, to, edges[to].elb)
 
     def plot(self):
-        import networkx as nx
-        import matplotlib.pyplot as plt
+        try:
+            import networkx as nx
+            import matplotlib.pyplot as plt
+        except Exception, e:
+            print e
+            return
         gnx = nx.Graph() if self.is_undirected else nx.DiGraph()
         vlbs = {vid:v.vlb for vid, v in self.vertices.items()}
         elbs = {}
