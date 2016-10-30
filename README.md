@@ -1,9 +1,8 @@
 # <div align = center>gSpan</div>
 
-
 gSpan是一个频繁子图挖掘算法。
 
-这个程序使用Python实现了gSpan算法。在实现时，参照了[gboost](http://www.nowozin.net/sebastian/gboost/)。
+这个程序使用Python实现了gSpan算法，项目的GitHub地址为[https://github.com/betterenvi/gSpan](https://github.com/betterenvi/gSpan)。在实现时，参照了[gboost](http://www.nowozin.net/sebastian/gboost/)。
 
 ### 无向图频繁子图挖掘
 在[graphdata/graph.data](https://github.com/betterenvi/gSpan/blob/master/graphdata/graph.data)数据上，在数次运行中，这个程序和gboost的输出结果一致。
