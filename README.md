@@ -1,6 +1,8 @@
 # <div align = center>gSpan</div>
 
-gSpan is an algorithm for mining frequent subgraphs.
+##### For Chinese readme, please refer to [README-Chinese](https://github.com/betterenvi/gSpan/blob/master/README-Chinese.md). 
+
+**gSpan** is an algorithm for mining frequent subgraphs.
 
 This program implements gSpan with Python. The repository on GitHub is [https://github.com/betterenvi/gSpan](https://github.com/betterenvi/gSpan). This implementation borrows some ideas from [gboost](http://www.nowozin.net/sebastian/gboost/).
 
