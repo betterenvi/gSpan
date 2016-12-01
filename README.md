@@ -67,7 +67,7 @@ On the dataset [./graphdata/graph.data](https://github.com/betterenvi/gSpan/blob
 
 
 
-### Refercence
+### Reference
 - [Paper](http://www.cs.ucsb.edu/~xyan/papers/gSpan-short.pdf)
 
 gSpan: Graph-Based Substructure Pattern Mining, by X. Yan and J. Han. 

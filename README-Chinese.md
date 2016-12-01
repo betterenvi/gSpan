@@ -65,7 +65,7 @@ $ python main.py -h
 
 
 
-### Refercence
+### Reference
 - [论文](http://www.cs.ucsb.edu/~xyan/papers/gSpan-short.pdf)
 
 gSpan: Graph-Based Substructure Pattern Mining, by X. Yan and J. Han. 
