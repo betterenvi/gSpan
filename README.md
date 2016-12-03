@@ -1,6 +1,6 @@
 # <div align = center>gSpan</div>
 
-##### For Chinese readme, please refer to [README-Chinese](https://github.com/betterenvi/gSpan/blob/master/README-Chinese.md). 
+##### For Chinese readme, please go to [README-Chinese](https://github.com/betterenvi/gSpan/blob/master/README-Chinese.md). 
 
 **gSpan** is an algorithm for mining frequent subgraphs.
 
