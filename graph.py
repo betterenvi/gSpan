@@ -31,7 +31,7 @@ class Graph(object):
         self.set_of_elb = collections.defaultdict(set)
         self.set_of_vlb = collections.defaultdict(set)
         self.eid_auto_increment = eid_auto_increment
-        self.counter = itertools.count()
+        self.counter = 0#itertools.count()
 
     def get_num_vertices(self):
         return len(self.vertices)
@@ -47,7 +47,8 @@ class Graph(object):
         if frm is self.vertices and to in self.vertices and to in self.vertices[frm].edges:
                 return self
         if self.eid_auto_increment:
-            eid = self.counter.next()
+            eid = self.counter#.next()
+            self.counter+=1
         self.vertices[frm].add_edge(eid, frm, to, elb)
         self.set_of_elb[elb].add((frm, to))
         if self.is_undirected:
@@ -107,24 +108,29 @@ class Graph(object):
         return self
 
     def display(self):
-        print 't # {}'.format(self.gid)
+        display_str=''
+        print('t # {}'.format(self.gid))
         for vid in self.vertices:
-            print 'v {} {}'.format(vid, self.vertices[vid].vlb)
+            print('v {} {}'.format(vid, self.vertices[vid].vlb))
+            display_str+='v {} {} '.format(vid, self.vertices[vid].vlb)
         for frm in self.vertices:
             edges = self.vertices[frm].edges
             for to in edges:
                 if self.is_undirected:
                     if frm < to:
-                        print 'e {} {} {}'.format(frm, to, edges[to].elb)
+                        print('e {} {} {}'.format(frm, to, edges[to].elb))
+                        display_str+='e {} {} {} '.format(frm, to, edges[to].elb)
                 else:
-                    print 'e {} {} {}'.format(frm, to, edges[to].elb)
+                    print('e {} {}'.format(frm, to))
+                    display_str+='e {} {} '.format(frm, to)
+        return display_str
 
     def plot(self):
         try:
             import networkx as nx
             import matplotlib.pyplot as plt
-        except Exception, e:
-            print 'Can not plot graph:', e
+        except {Exception, e}:
+            print('Can not plot graph:', e)
             return
         gnx = nx.Graph() if self.is_undirected else nx.DiGraph()
         vlbs = {vid:v.vlb for vid, v in self.vertices.items()}
