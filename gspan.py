@@ -263,9 +263,9 @@ class gSpan(object):
         print('\nSupport: {}'.format(self.support))
 
         ######Add some report info to pandas dataframe "self.report_df"#####
-        max_eg=max([tupl[0] for tupl in g.set_of_elb[1]])
+        #max_eg=max([tupl[0] for tupl in g.set_of_elb[1]])
         self.report_df=self.report_df.append(pd.DataFrame(
-            {'support':[self.support],'description':[display_str], 'num_vert':self.DFScode.get_num_vertices(), 'max_eg_vert': max_eg,},
+            {'support':[self.support],'description':[display_str], 'num_vert':self.DFScode.get_num_vertices()},#, 'max_eg_vert': max_eg,},
             index=[self.counter-1]))
         ############################
         if self.visualize:
