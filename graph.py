@@ -1,4 +1,5 @@
-import collections, itertools
+import collections
+import itertools
 VACANT_EDGE_ID = -1
 VACANT_VERTEX_ID = -1
 VACANT_EDGE_LABEL = -1
@@ -6,15 +7,27 @@ VACANT_VERTEX_LABEL = -1
 VACANT_GRAPH_ID = -1
 AUTO_EDGE_ID = -1
 
+
 class Edge(object):
-    def __init__(self, eid = VACANT_EDGE_ID, frm = VACANT_VERTEX_ID, to = VACANT_VERTEX_ID, elb = VACANT_EDGE_LABEL):
+
+    def __init__(self,
+                 eid=VACANT_EDGE_ID,
+                 frm=VACANT_VERTEX_ID,
+                 to=VACANT_VERTEX_ID,
+                 elb=VACANT_EDGE_LABEL):
+
         self.eid = eid
         self.frm = frm
         self.to = to
         self.elb = elb
 
+
 class Vertex(object):
-    def __init__(self, vid = VACANT_VERTEX_ID, vlb = VACANT_VERTEX_LABEL):
+
+    def __init__(self,
+                 vid=VACANT_VERTEX_ID,
+                 vlb=VACANT_VERTEX_LABEL):
+
         self.vid = vid
         self.vlb = vlb
         self.edges = dict()
@@ -24,7 +37,12 @@ class Vertex(object):
 
 
 class Graph(object):
-    def __init__(self, gid = VACANT_GRAPH_ID, is_undirected = True, eid_auto_increment = True):
+
+    def __init__(self,
+                 gid=VACANT_GRAPH_ID,
+                 is_undirected=True,
+                 eid_auto_increment=True):
+
         self.gid = gid
         self.is_undirected = is_undirected
         self.vertices = dict()
@@ -44,8 +62,10 @@ class Graph(object):
         return self
 
     def add_edge(self, eid, frm, to, elb):
-        if frm is self.vertices and to in self.vertices and to in self.vertices[frm].edges:
-                return self
+        if (frm is self.vertices and
+            to in self.vertices and
+            to in self.vertices[frm].edges):
+            return self
         if self.eid_auto_increment:
             eid = self.counter.next()
         self.vertices[frm].add_edge(eid, frm, to, elb)
@@ -55,12 +75,11 @@ class Graph(object):
             self.set_of_elb[elb].add((to, frm))
         return self
 
-
     def remove_vertex(self, vid):
         if self.is_undirected:
             v = self.vertices[vid]
             for to in v.edges.keys():
-                e = v.edges[to] # (vid, to) and (to, vid) have same elb
+                e = v.edges[to]  # (vid, to) and (to, vid) have same elb
                 self.set_of_elb[e.elb].discard((to, vid))
                 del self.vertices[to].edges[vid]
         else:
@@ -90,7 +109,8 @@ class Graph(object):
         return self
 
     def remove_edge_with_elb(self, elb):
-        for frm, to in list(self.set_of_elb[elb]): # use list. otherwise, 'Set changed size during iteration'
+        # use list. otherwise, 'Set changed size during iteration'
+        for frm, to in list(self.set_of_elb[elb]):
             self.remove_edge(frm, to)
         return self
 
@@ -127,19 +147,20 @@ class Graph(object):
             print 'Can not plot graph:', e
             return
         gnx = nx.Graph() if self.is_undirected else nx.DiGraph()
-        vlbs = {vid:v.vlb for vid, v in self.vertices.items()}
+        vlbs = {vid: v.vlb for vid, v in self.vertices.items()}
         elbs = {}
         for vid, v in self.vertices.items():
-            gnx.add_node(vid, label = v.vlb)
+            gnx.add_node(vid, label=v.vlb)
         for vid, v in self.vertices.items():
             for to, e in v.edges.items():
                 if (not self.is_undirected) or vid < to:
-                    gnx.add_edge(vid, to, label = e.elb)
+                    gnx.add_edge(vid, to, label=e.elb)
                     elbs[(vid, to)] = e.elb
-        fsize = (min(16, 1 * len(self.vertices)), min(16, 1 * len(self.vertices)))
-        plt.figure(3,figsize=fsize)
+        fsize = (min(16, 1 * len(self.vertices)),
+                 min(16, 1 * len(self.vertices)))
+        plt.figure(3, figsize=fsize)
         pos = nx.spectral_layout(gnx)
         nx.draw_networkx(gnx, pos, arrows=True, with_labels=True, labels=vlbs)
-        #nx.draw_networkx_labels(gnx,pos)
+        # nx.draw_networkx_labels(gnx,pos)
         nx.draw_networkx_edge_labels(gnx, pos, edge_labels=elbs)
         plt.show()
