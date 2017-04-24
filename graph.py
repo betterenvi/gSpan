@@ -49,7 +49,7 @@ class Graph(object):
         self.set_of_elb = collections.defaultdict(set)
         self.set_of_vlb = collections.defaultdict(set)
         self.eid_auto_increment = eid_auto_increment
-        self.counter = 0#itertools.count()
+        self.counter = itertools.count()
 
     def get_num_vertices(self):
         return len(self.vertices)
@@ -67,8 +67,7 @@ class Graph(object):
             to in self.vertices[frm].edges):
             return self
         if self.eid_auto_increment:
-            eid = self.counter#.next()
-            self.counter+=1
+            eid = next(self.counter)
         self.vertices[frm].add_edge(eid, frm, to, elb)
         self.set_of_elb[elb].add((frm, to))
         if self.is_undirected:

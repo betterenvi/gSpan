@@ -4,7 +4,6 @@ from graph import *
 import pandas as pd
 
 
-
 def record_timestamp(func):
     def deco(self):
         self.timestamps[func.__name__ + '_in'] = time.time()
@@ -179,7 +178,7 @@ class gSpan(object):
                 ' min number of that.\n'
                 'Set max_num_vertices = min_num_vertices.')
             self.max_num_vertices = self.min_num_vertices
-        self.report_df=pd.DataFrame()
+        self.report_df = pd.DataFrame()
 
     def time_stats(self):
         func_names = ['read_graphs', 'run']
@@ -283,7 +282,6 @@ class gSpan(object):
                         PDFS(gid, e, None)
                     )
 
-        #if self.verbose: print 'run:', root.keys()
         for vevlb, projected in root.items():
             self.DFScode.append(DFSedge(0, 1, vevlb))
             self.subgraph_mining(projected)
@@ -303,15 +301,14 @@ class gSpan(object):
             return
         g = self.DFScode.to_graph(gid=next(self.counter),
             is_undirected=self.is_undirected)
-        display_str=g.display()
+        display_str = g.display()
         print('\nSupport: {}'.format(self.support))
 
         ######Add some report info to pandas dataframe "self.report_df"#####
-        #max_eg=max([tupl[0] for tupl in g.set_of_elb[1]])
-        self.report_df=self.report_df.append(pd.DataFrame(
-            {'support':[self.support],
-             'description':[display_str],
-             'num_vert':self.DFScode.get_num_vertices()},#, 'max_eg_vert': max_eg,},
+        self.report_df = self.report_df.append(pd.DataFrame(
+            {'support': [self.support],
+             'description': [display_str],
+             'num_vert': self.DFScode.get_num_vertices()},
             index=[int(repr(self.counter)[6:-1])]))
         if self.visualize:
             g.plot()
@@ -389,7 +386,8 @@ class gSpan(object):
         return result
 
     def is_min(self):
-        if self.verbose:print('is_min: checking {}'.format(self.DFScode))
+        if self.verbose:
+            print('is_min: checking {}'.format(self.DFScode))
         if len(self.DFScode) == 1:
             return True
         g = self.DFScode.to_graph(gid=VACANT_GRAPH_ID,
@@ -434,7 +432,6 @@ class gSpan(object):
                     (VACANT_VERTEX_LABEL, backward_min_elb, VACANT_VERTEX_LABEL))
                 )
                 idx = len(DFScode_min) - 1
-                #if self.verbose: print 'project_is_min: 5', idx, len(self.DFScode)
                 if self.DFScode[idx] != DFScode_min[idx]:
                     return False
                 return project_is_min(backward_root[backward_min_elb])
@@ -454,7 +451,6 @@ class gSpan(object):
                         forward_root[
                             (e.elb, g.vertices[e.to].vlb)
                         ].append(PDFS(g.gid, e, p))
-            #if self.verbose: print 'project_is_min: 2', flag
             for rmpath_i in rmpath:
                 if flag:
                     break
@@ -471,13 +467,11 @@ class gSpan(object):
                             forward_root[
                                 (e.elb, g.vertices[e.to].vlb)
                             ].append(PDFS(g.gid, e, p))
-            #if self.verbose: print 'project_is_min: 3', flag
 
             if not flag:
                 return True
 
             forward_min_evlb = min(forward_root.keys())
-            #if self.verbose: print 'project_is_min: 4', forward_min_evlb, newfrm
             DFScode_min.append(DFSedge(
                 newfrm, maxtoc + 1,
                 (VACANT_VERTEX_LABEL, forward_min_evlb[0], forward_min_evlb[1]))
@@ -488,7 +482,6 @@ class gSpan(object):
             return project_is_min(forward_root[forward_min_evlb])
 
         res = project_is_min(root[min_vevlb])
-        #if self.verbose: print 'is_min: leave'
         return res
 
     def subgraph_mining(self, projected):
