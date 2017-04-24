@@ -1,5 +1,8 @@
 import collections, itertools, copy, time
+import codecs
 from graph import *
+import pandas as pd
+
 
 
 def record_timestamp(func):
@@ -176,6 +179,7 @@ class gSpan(object):
                 ' min number of that.\n'
                 'Set max_num_vertices = min_num_vertices.')
             self.max_num_vertices = self.min_num_vertices
+        self.report_df=pd.DataFrame()
 
     def time_stats(self):
         func_names = ['read_graphs', 'run']
@@ -185,17 +189,19 @@ class gSpan(object):
                 self.timestamps[fn + '_out'] - self.timestamps[fn + '_in'],
                 2
             )
-        print 'Read:\t{} s'.format(time_deltas['read_graphs'])
-        print 'Mine:\t{} s'.format(
-            time_deltas['run'] - time_deltas['read_graphs'])
-        print 'Total:\t{} s'.format(time_deltas['run'])
+
+        print('Read:\t{} s'.format(time_deltas['read_graphs']))
+        print('Mine:\t{} s'.format(
+            time_deltas['run'] - time_deltas['read_graphs']))
+        print('Total:\t{} s'.format(time_deltas['run']))
+
         return self
 
     @record_timestamp
     def read_graphs(self):
         self.graphs = dict()
-        with open(self.database_file_name) as f:
-            lines = map(lambda x:x.strip(), f.readlines())
+        with codecs.open(self.database_file_name, 'r', 'utf-8') as f:
+            lines=[line.strip() for line in f.readlines()]
             nlines = len(lines)
             tgraph, graph_cnt, edge_cnt = None, 0, 0
             for i, line in enumerate(lines):
@@ -217,7 +223,6 @@ class gSpan(object):
             # adapt to input files that do not end with 't # -1'
             if tgraph != None:
                 self.graphs[graph_cnt] = tgraph
-
         return self
 
     @record_timestamp
@@ -241,7 +246,7 @@ class gSpan(object):
         # remove infrequent vertices or add frequent vertices
         for vlb, cnt in vlb_counter.items():
             if cnt >= self.min_support:
-                g = Graph(gid=self.counter.next(),
+                g = Graph(gid=next(self.counter),
                     is_undirected=self.is_undirected)
                 g.add_vertex(0, vlb)
                 self.frequent_size1_subgraphs.append(g)
@@ -289,22 +294,30 @@ class gSpan(object):
 
     def report_size1(self, g, support):
         g.display()
-        print '\nSupport: {}'.format(support)
-        print '\n-----------------\n'
+        print('\nSupport: {}'.format(support))
+        print('\n-----------------\n')
 
     def report(self, projected):
         self.frequent_subgraphs.append(copy.copy(self.DFScode))
         if self.DFScode.get_num_vertices() < self.min_num_vertices:
             return
-        g = self.DFScode.to_graph(gid=self.counter.next(),
+        g = self.DFScode.to_graph(gid=next(self.counter),
             is_undirected=self.is_undirected)
-        g.display()
-        print '\nSupport: {}'.format(self.support)
+        display_str=g.display()
+        print('\nSupport: {}'.format(self.support))
+
+        ######Add some report info to pandas dataframe "self.report_df"#####
+        #max_eg=max([tupl[0] for tupl in g.set_of_elb[1]])
+        self.report_df=self.report_df.append(pd.DataFrame(
+            {'support':[self.support],
+             'description':[display_str],
+             'num_vert':self.DFScode.get_num_vertices()},#, 'max_eg_vert': max_eg,},
+            index=[int(repr(self.counter)[6:-1])]))
         if self.visualize:
             g.plot()
         if self.where:
-            print 'where:', list(set([p.gid for p in projected]))
-        print '\n-----------------\n'
+            print('where: {}'.format(list(set([p.gid for p in projected]))))
+        print('\n-----------------\n')
 
     def get_forward_root_edges(self, g, frm):
         result = []
@@ -376,7 +389,7 @@ class gSpan(object):
         return result
 
     def is_min(self):
-        if self.verbose: print 'is_min: checking', self.DFScode
+        if self.verbose:print('is_min: checking {}'.format(self.DFScode))
         if len(self.DFScode) == 1:
             return True
         g = self.DFScode.to_graph(gid=VACANT_GRAPH_ID,
