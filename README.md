@@ -14,7 +14,7 @@ So far(date: 2016-10-29), gboost does not support directed graphs. This program 
 
 ### How to run
 
-This program is developed under **Python 2**, therefore please run this program using **Python 2**.
+This program supports both **Python 2** and **Python 3**.
 
 ```
 $ python main.py [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d 1/0] [-v 1/0] [-p 1/0] [-w 1/0] [-h] database_file_name 

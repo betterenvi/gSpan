@@ -12,7 +12,7 @@ gSpan是一个频繁子图挖掘算法。
 
 ### 如何运行
 
-这个程序是使用**Python 2**开发的，请用**Python 2**运行这个程序。
+这个程序是支持**Python 2**和**Python 3**。
 
 ```
 $ python main.py [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d 1/0] [-v 1/0] [-p 1/0] [-w 1/0] [-h] database_file_name 
