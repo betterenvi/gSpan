@@ -4,6 +4,7 @@ from graph import *
 import pandas as pd
 
 
+
 def record_timestamp(func):
     def deco(self):
         self.timestamps[func.__name__ + '_in'] = time.time()
@@ -188,10 +189,12 @@ class gSpan(object):
                 self.timestamps[fn + '_out'] - self.timestamps[fn + '_in'],
                 2
             )
+
         print('Read:\t{} s'.format(time_deltas['read_graphs']))
         print('Mine:\t{} s'.format(
             time_deltas['run'] - time_deltas['read_graphs']))
         print('Total:\t{} s'.format(time_deltas['run']))
+
         return self
 
     @record_timestamp
