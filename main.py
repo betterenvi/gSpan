@@ -22,7 +22,7 @@ def main():
         min_num_vertices=FLAGS.lower_bound_of_num_vertices,
         max_num_vertices=FLAGS.upper_bound_of_num_vertices,
         max_ngraphs=FLAGS.num_graphs,
-        is_undirected=FLAGS.directed,
+        is_undirected=(not FLAGS.directed),
         verbose=FLAGS.verbose,
         visualize=FLAGS.plot,
         where=FLAGS.where
