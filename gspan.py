@@ -252,7 +252,7 @@ class gSpan(object):
                     if (g.gid, (vlb1, e.elb, vlb2)) not in vevlb_counter:
                         vevlb_counter[(vlb1, e.elb, vlb2)] += 1
                     vevlb_counted.add((g.gid, (vlb1, e.elb, vlb2)))
-        # remove infrequent vertices or add frequent vertices
+        # add frequent vertices.
         for vlb, cnt in vlb_counter.items():
             if cnt >= self.min_support:
                 g = Graph(gid=next(self.counter),
@@ -263,19 +263,8 @@ class gSpan(object):
                     self.report_size1(g, support=cnt)
             else:
                 continue
-                for g in self.graphs.values():
-                    g.remove_vertex_with_vlb(vlb)
         if self.min_num_vertices > 1:
             self.counter = itertools.count()
-        # remove edges of infrequent vev or ...
-        for vevlb, cnt in vevlb_counter.items():
-            if cnt >= self.min_support:
-                continue
-            else:
-                continue
-                for g in self.graphs.values():
-                    g.remove_edge_with_vevlb(vevlb)
-        # return copy.copy(self.frequent_subgraphs)
 
     @record_timestamp
     def run(self):

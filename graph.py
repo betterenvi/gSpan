@@ -19,6 +19,14 @@ class Edge(object):
                  frm=VACANT_VERTEX_ID,
                  to=VACANT_VERTEX_ID,
                  elb=VACANT_EDGE_LABEL):
+        """Initializes Edge instance.
+
+        Args:
+            eid: edge id.
+            frm: source vertex id.
+            to: destination vertex id.
+            elb: edge label.
+        """
         self.eid = eid
         self.frm = frm
         self.to = to
@@ -26,26 +34,40 @@ class Edge(object):
 
 
 class Vertex(object):
+    """Vertex class."""
 
     def __init__(self,
                  vid=VACANT_VERTEX_ID,
                  vlb=VACANT_VERTEX_LABEL):
+        """Initializes Vertex instance.
 
+        Args:
+            vid: id of this vertex.
+            vlb: label of this vertex.
+        """
         self.vid = vid
         self.vlb = vlb
         self.edges = dict()
 
     def add_edge(self, eid, frm, to, elb):
+        """Adds an outgoing edge."""
         self.edges[to] = Edge(eid, frm, to, elb)
 
 
 class Graph(object):
+    """Graph class."""
 
     def __init__(self,
                  gid=VACANT_GRAPH_ID,
                  is_undirected=True,
                  eid_auto_increment=True):
+        """Initializes Graph instance.
 
+        Args:
+            gid: id of this graph.
+            is_undirected: whether this graph is directed or not.
+            eid_auto_increment: whether to increment edge ids automatically.
+        """
         self.gid = gid
         self.is_undirected = is_undirected
         self.vertices = dict()
@@ -55,9 +77,11 @@ class Graph(object):
         self.counter = itertools.count()
 
     def get_num_vertices(self):
+        """Returns number of vertices in the graph."""
         return len(self.vertices)
 
     def add_vertex(self, vid, vlb):
+        """Adds a vertex to the graph."""
         if vid in self.vertices:
             return self
         self.vertices[vid] = Vertex(vid, vlb)
@@ -65,6 +89,7 @@ class Graph(object):
         return self
 
     def add_edge(self, eid, frm, to, elb):
+        """Adds an edge to the graph."""
         if (frm is self.vertices and
                 to in self.vertices and
                 to in self.vertices[frm].edges):
@@ -79,6 +104,7 @@ class Graph(object):
         return self
 
     def remove_vertex(self, vid):
+
         if self.is_undirected:
             v = self.vertices[vid]
             for to in v.edges.keys():
