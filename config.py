@@ -1,7 +1,9 @@
+"""Define some args."""
 import argparse
 
 
 def str2bool(s):
+    """Convert str to bool."""
     return s.lower() not in ['false', 'f', '0', 'none', 'no', 'n']
 
 

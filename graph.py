@@ -19,7 +19,7 @@ class Edge(object):
                  frm=VACANT_VERTEX_ID,
                  to=VACANT_VERTEX_ID,
                  elb=VACANT_EDGE_LABEL):
-        """Initializes Edge instance.
+        """Initialize Edge instance.
 
         Args:
             eid: edge id.
@@ -39,7 +39,7 @@ class Vertex(object):
     def __init__(self,
                  vid=VACANT_VERTEX_ID,
                  vlb=VACANT_VERTEX_LABEL):
-        """Initializes Vertex instance.
+        """Initialize Vertex instance.
 
         Args:
             vid: id of this vertex.
@@ -50,7 +50,7 @@ class Vertex(object):
         self.edges = dict()
 
     def add_edge(self, eid, frm, to, elb):
-        """Adds an outgoing edge."""
+        """Add an outgoing edge."""
         self.edges[to] = Edge(eid, frm, to, elb)
 
 
@@ -61,7 +61,7 @@ class Graph(object):
                  gid=VACANT_GRAPH_ID,
                  is_undirected=True,
                  eid_auto_increment=True):
-        """Initializes Graph instance.
+        """Initialize Graph instance.
 
         Args:
             gid: id of this graph.
@@ -77,11 +77,11 @@ class Graph(object):
         self.counter = itertools.count()
 
     def get_num_vertices(self):
-        """Returns number of vertices in the graph."""
+        """Return number of vertices in the graph."""
         return len(self.vertices)
 
     def add_vertex(self, vid, vlb):
-        """Adds a vertex to the graph."""
+        """Add a vertex to the graph."""
         if vid in self.vertices:
             return self
         self.vertices[vid] = Vertex(vid, vlb)
@@ -89,7 +89,7 @@ class Graph(object):
         return self
 
     def add_edge(self, eid, frm, to, elb):
-        """Adds an edge to the graph."""
+        """Add an edge to the graph."""
         if (frm is self.vertices and
                 to in self.vertices and
                 to in self.vertices[frm].edges):
@@ -103,59 +103,8 @@ class Graph(object):
             self.set_of_elb[elb].add((to, frm))
         return self
 
-    def remove_vertex(self, vid):
-
-        if self.is_undirected:
-            v = self.vertices[vid]
-            for to in v.edges.keys():
-                e = v.edges[to]  # (vid, to) and (to, vid) have same elb
-                self.set_of_elb[e.elb].discard((to, vid))
-                del self.vertices[to].edges[vid]
-        else:
-            for frm in self.vertices.keys():
-                v = self.vertices[frm]
-                if vid in v.edges.keys():
-                    e = self.vertices[frm].edges[vid]
-                    self.set_of_elb[e.elb].discard((frm, vid))
-                    del self.vertices[frm].edges[vid]
-
-        v = self.vertices[vid]
-        for to in v.edges.keys():
-            e = v.edges[to]
-            self.set_of_elb[e.elb].discard((vid, to))
-
-        self.set_of_vlb[v.vlb].discard(vid)
-        del self.vertices[vid]
-        return self
-
-    def remove_edge(self, frm, to):
-        elb = self.vertices[frm].edges[to].elb
-        self.set_of_elb[elb].discard((frm, to))
-        del self.vertices[frm].edges[to]
-        if self.is_undirected:
-            self.set_of_elb[elb].discard((to, frm))
-            del self.vertices[to].edges[frm]
-        return self
-
-    def remove_edge_with_elb(self, elb):
-        # use list. otherwise, 'Set changed size during iteration'
-        for frm, to in list(self.set_of_elb[elb]):
-            self.remove_edge(frm, to)
-        return self
-
-    def remove_vertex_with_vlb(self, vlb):
-        for vid in list(self.set_of_vlb[vlb]):
-            self.remove_vertex(vid)
-        return self
-
-    def remove_edge_with_vevlb(self, vevlb):
-        vlb1, elb, vlb2 = vevlb
-        for frm, to in list(self.set_of_elb[elb]):
-            if frm in self.set_of_vlb[vlb1] and to in self.set_of_vlb[vlb2]:
-                self.remove_edge(frm, to)
-        return self
-
     def display(self):
+        """Display the graph as text."""
         display_str = ''
         print('t # {}'.format(self.gid))
         for vid in self.vertices:
@@ -175,6 +124,7 @@ class Graph(object):
         return display_str
 
     def plot(self):
+        """Visualize the graph."""
         try:
             import networkx as nx
             import matplotlib.pyplot as plt
@@ -196,6 +146,5 @@ class Graph(object):
         plt.figure(3, figsize=fsize)
         pos = nx.spectral_layout(gnx)
         nx.draw_networkx(gnx, pos, arrows=True, with_labels=True, labels=vlbs)
-        # nx.draw_networkx_labels(gnx,pos)
         nx.draw_networkx_edge_labels(gnx, pos, edge_labels=elbs)
         plt.show()
