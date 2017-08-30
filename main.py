@@ -7,10 +7,7 @@ from config import parser
 from gspan import gSpan
 
 
-FLAGS, _ = parser.parse_known_args(args=sys.argv[1:])
-
-
-def main():
+def main(FLAGS):
     """Run gSpan."""
     if not os.path.exists(FLAGS.database_file_name):
         print('{} does not exist.'.format(FLAGS.database_file_name))
@@ -30,6 +27,8 @@ def main():
 
     gs.run()
     gs.time_stats()
+    return gs
 
 if __name__ == '__main__':
-    main()
+    FLAGS, _ = parser.parse_known_args(args=sys.argv[1:])
+    main(FLAGS)
