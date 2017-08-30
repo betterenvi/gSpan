@@ -17,7 +17,7 @@ So far(date: 2016-10-29), gboost does not support directed graphs. This program 
 This program supports both **Python 2** and **Python 3**.
 
 ```
-$ python main.py [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d 1/0] [-v 1/0] [-p 1/0] [-w 1/0] [-h] database_file_name 
+$ python main.py [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d True/False] [-v True/False] [-p True/False] [-w True/False] [-h] database_file_name 
 ```
 
 ##### Some examples
@@ -29,12 +29,12 @@ $ python main.py -s 5000 ./graphdata/graph.data
 
 - Read graph data from ./graphdata/graph.data, mine undirected subgraphs given min support is 5000, and visualize these frequent subgraphs(matplotlib and networkx are required)
 ```
-$ python main.py -s 5000 -p 1 ./graphdata/graph.data
+$ python main.py -s 5000 -p True ./graphdata/graph.data
 ```
 
 - Read graph data from ./graphdata/graph.data, and mine directed subgraphs given min support is 5000
 ```
-$ python main.py -s 5000 -d 1 ./graphdata/graph.data
+$ python main.py -s 5000 -d True ./graphdata/graph.data
 ```
 
 - Print help info
