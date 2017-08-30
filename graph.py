@@ -1,5 +1,8 @@
+"""Definitions of Edge, Vertex and Graph."""
 import collections
 import itertools
+
+
 VACANT_EDGE_ID = -1
 VACANT_VERTEX_ID = -1
 VACANT_EDGE_LABEL = -1
@@ -9,13 +12,13 @@ AUTO_EDGE_ID = -1
 
 
 class Edge(object):
+    """Edge class."""
 
     def __init__(self,
                  eid=VACANT_EDGE_ID,
                  frm=VACANT_VERTEX_ID,
                  to=VACANT_VERTEX_ID,
                  elb=VACANT_EDGE_LABEL):
-
         self.eid = eid
         self.frm = frm
         self.to = to
@@ -63,8 +66,8 @@ class Graph(object):
 
     def add_edge(self, eid, frm, to, elb):
         if (frm is self.vertices and
-            to in self.vertices and
-            to in self.vertices[frm].edges):
+                to in self.vertices and
+                to in self.vertices[frm].edges):
             return self
         if self.eid_auto_increment:
             eid = next(self.counter)
@@ -127,21 +130,22 @@ class Graph(object):
         return self
 
     def display(self):
-        display_str=''
+        display_str = ''
         print('t # {}'.format(self.gid))
         for vid in self.vertices:
             print('v {} {}'.format(vid, self.vertices[vid].vlb))
-            display_str+='v {} {} '.format(vid, self.vertices[vid].vlb)
+            display_str += 'v {} {} '.format(vid, self.vertices[vid].vlb)
         for frm in self.vertices:
             edges = self.vertices[frm].edges
             for to in edges:
                 if self.is_undirected:
                     if frm < to:
                         print('e {} {} {}'.format(frm, to, edges[to].elb))
-                        display_str+='e {} {} {} '.format(frm, to, edges[to].elb)
+                        display_str += 'e {} {} {} '.format(
+                            frm, to, edges[to].elb)
                 else:
                     print('e {} {} {}'.format(frm, to, edges[to].elb))
-                    display_str+='e {} {} {}'.format(frm, to, edges[to].elb)
+                    display_str += 'e {} {} {}'.format(frm, to, edges[to].elb)
         return display_str
 
     def plot(self):

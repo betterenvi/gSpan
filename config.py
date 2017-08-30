@@ -1,57 +1,64 @@
 import argparse
 
+
+def str2bool(s):
+    return s.lower() not in ['false', 'f', '0', 'none', 'no', 'n']
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '-s',
+    '-s', '--min_support',
     type=int,
     default=5000,
     help='min support, default 5000'
 )
 parser.add_argument(
-    '-n',
+    '-n', '--num_graphs',
     type=float,
     default=float('inf'),
     help='only read the first n graphs in the given database, '
-    'default inf, i.e. all graphs'
+         'default inf, i.e. all graphs'
 )
 parser.add_argument(
-    '-l',
+    '-l', '--lower_bound_of_num_vertices',
     type=int,
     default=2,
-    help='lower bound of number of vertices of output subgraph, default 2'
+    help='int, lower bound of number of vertices of output subgraph, default 2'
 )
 parser.add_argument(
-    '-u',
+    '-u', '--upper_bound_of_num_vertices',
     type=int,
     default=float('inf'),
-    help='upper bound of number of vertices of output subgraph, default inf'
+    help='int, upper bound of number of vertices of output subgraph, '
+         'default inf'
 )
 parser.add_argument(
-    '-d',
-    type=int,
-    default=0,
-    help='run for directed graphs, default off, i.e. for undirected graphs'
+    '-d', '--directed',
+    type=str2bool,
+    default=False,
+    help='bool, run for directed graphs, default off, i.e. undirected graphs'
 )
 parser.add_argument(
-    '-v',
-    type=int,
-    default=0,
-    help='verbose output, default off'
+    '-v', '--verbose',
+    type=str2bool,
+    default=False,
+    help='bool, verbose output, default off'
 )
 parser.add_argument(
     'database_file_name',
     type=str,
-    help='database file name'
+    help='str, database file name'
 )
 parser.add_argument(
-    '-p',
-    type=int,
-    default=0,
-    help='plot frequent subgraph, default off'
+    '-p', '--plot',
+    type=str2bool,
+    default=False,
+    help='bool, whether plot frequent subgraph, default off'
 )
 parser.add_argument(
-    '-w',
-    type=int,
-    default=0,
-    help='output where one frequent subgraph appears in database, default off'
+    '-w', '--where',
+    type=str2bool,
+    default=False,
+    help='bool, output where one frequent subgraph appears in database, '
+         'default off'
 )
