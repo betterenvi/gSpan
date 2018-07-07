@@ -26,7 +26,7 @@ pip install gspan-mining
 git clone https://github.com/betterenvi/gSpan.git
 cd gSpan
 ```
-你也可以***选择***安装这个项目，这样就可以在***任意***一个路径下运行：
+你也可以选择安装这个项目，这样就可以在任意一个路径下运行：
 ```sh
 python setup.py install
 ```
