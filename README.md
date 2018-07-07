@@ -12,9 +12,18 @@ This program supports undirected graphs, and produces same results with gboost o
 ### Directed Graphs
 So far(date: 2016-10-29), gboost does not support directed graphs. This program implements gSpan for directed graphs. More specific, this program can mine frequent directed subgraph that has at least one node that can reach other nodes in the subgraph. But correctness is not guaranteed since the author did not do enough testing. After running several times on datasets [graphdata/graph.data.directed.1](https://github.com/betterenvi/gSpan/blob/master/graphdata/graph.data.directed.1) and [graph.data.simple.5](https://github.com/betterenvi/gSpan/blob/master/graphdata/graph.data.simple.5), there is no fault.
 
-### How to run
+### How to install
 
 This program supports both **Python 2** and **Python 3**.
+
+##### Method 1
+
+Install this project using pip:
+```sh
+pip install gspan-mining
+```
+
+##### Method 2
 
 First, clone the project:
 
@@ -22,16 +31,21 @@ First, clone the project:
 git clone https://github.com/betterenvi/gSpan.git
 cd gSpan
 ```
-Second, run: 
-```sh
-python -m gspan_mining [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d True/False] [-v True/False] [-p True/False] [-w True/False] [-h] database_file_name 
-```
 
 You can ***optionally*** install this project as a third-party library so that you can run it under ***any*** path using the same command above.
 
 ```sh
 python setup.py install
 ```
+
+### How to run
+
+The command is:
+
+```sh
+python -m gspan_mining [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d True/False] [-v True/False] [-p True/False] [-w True/False] [-h] database_file_name 
+```
+
 
 ##### Some examples
 

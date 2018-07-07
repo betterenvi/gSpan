@@ -10,22 +10,33 @@ gSpan是一个频繁子图挖掘算法。
 ### 有向图频繁子图挖掘
 当前（时间：2016-10-29），gboost还不支持有向图的频繁子图挖掘。这个程序实现了面向有向图的频繁子图挖掘，可以挖掘那些至少有一个点能够到达其他任一点的频繁子图，**但是还没有全面测试过，正确性不敢保证**。程序的作者在[graphdata/graph.data.directed.1](https://github.com/betterenvi/gSpan/blob/master/graphdata/graph.data.directed.1)和[graph.data.simple.5](https://github.com/betterenvi/gSpan/blob/master/graphdata/graph.data.simple.5)两个数据集上，运行了数次，暂时还未发现错误。
 
-### 如何运行
+### 如何安装
 
 这个程序是支持**Python 2**和**Python 3**。
 
+##### 方法 1
+使用pip安装：
+```sh
+pip install gspan-mining
+```
+
+##### 方法 2
 首先，克隆项目：
 ```sh
 git clone https://github.com/betterenvi/gSpan.git
 cd gSpan
 ```
-然后，运行如下命令：
-```sh
-python -m gspan_mining [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d True/False] [-v True/False] [-p True/False] [-w True/False] [-h] database_file_name 
-```
-你也可以安装这个项目，这样就可以在任意一个路径下运行：
+你也可以***选择***安装这个项目，这样就可以在***任意***一个路径下运行：
 ```sh
 python setup.py install
+```
+
+
+### 如何运行
+
+命令：
+```sh
+python -m gspan_mining [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d True/False] [-v True/False] [-p True/False] [-w True/False] [-h] database_file_name 
 ```
 
 ##### 一些例子
