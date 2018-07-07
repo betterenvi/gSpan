@@ -32,7 +32,7 @@ git clone https://github.com/betterenvi/gSpan.git
 cd gSpan
 ```
 
-You can ***optionally*** install this project as a third-party library so that you can run it under ***any*** path using the same command above.
+You can ***optionally*** install this project as a third-party library so that you can run it under ***any*** path.
 
 ```sh
 python setup.py install
