@@ -15,29 +15,29 @@ gSpan是一个频繁子图挖掘算法。
 这个程序是支持**Python 2**和**Python 3**。
 
 ```
-$ python -m gspan_mining.main [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d True/False] [-v True/False] [-p True/False] [-w True/False] [-h] database_file_name 
+python -m gspan_mining.main [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d True/False] [-v True/False] [-p True/False] [-w True/False] [-h] database_file_name 
 ```
 
 ##### 一些例子
 
 - 从./graphdata/graph.data中读取数据，挖掘支持度最少5000的频繁无向子图
 ```
-$ python -m gspan_mining.main -s 5000 ./graphdata/graph.data
+python -m gspan_mining.main -s 5000 ./graphdata/graph.data
 ```
 
 - 从./graphdata/graph.data中读取数据，挖掘支持度最少5000的频繁无向子图，并将频繁子图可视化（需要安装matplotlib和networkx）
 ```
-$ python -m gspan_mining.main -s 5000 -p True ./graphdata/graph.data
+python -m gspan_mining.main -s 5000 -p True ./graphdata/graph.data
 ```
 
 - 从./graphdata/graph.data中读取数据，挖掘支持度最少5000的频繁有向子图
 ```
-$ python -m gspan_mining.main -s 5000 -d True ./graphdata/graph.data
+python -m gspan_mining.main -s 5000 -d True ./graphdata/graph.data
 ```
 
 - 查看帮助，输出各个参数的含义
 ```
-$ python -m gspan_mining.main -h
+python -m gspan_mining.main -h
 ```
 
 本程序的作者还写了基于Jupyter Notebook的[代码](https://github.com/betterenvi/gSpan/blob/master/main.ipynb)，展示了程序的输出，并对图进行了可视化。详见[main.ipynb](https://github.com/betterenvi/gSpan/blob/master/main.ipynb)。

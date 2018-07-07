@@ -16,30 +16,43 @@ So far(date: 2016-10-29), gboost does not support directed graphs. This program 
 
 This program supports both **Python 2** and **Python 3**.
 
+First, clone the project:
+
+```sh
+git clone https://github.com/betterenvi/gSpan.git
+cd gSpan
 ```
-$ python -m gspan_mining.main [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d True/False] [-v True/False] [-p True/False] [-w True/False] [-h] database_file_name 
+Second, run: 
+```sh
+python -m gspan_mining.main [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d True/False] [-v True/False] [-p True/False] [-w True/False] [-h] database_file_name 
+```
+
+You can ***optionally*** install this project as a third-party library so that you can run it under ***any*** path using the same command above.
+
+```sh
+python setup.py install
 ```
 
 ##### Some examples
 
 - Read graph data from ./graphdata/graph.data, and mine undirected subgraphs given min support is 5000
 ```
-$ python -m gspan_mining.main -s 5000 ./graphdata/graph.data
+python -m gspan_mining.main -s 5000 ./graphdata/graph.data
 ```
 
 - Read graph data from ./graphdata/graph.data, mine undirected subgraphs given min support is 5000, and visualize these frequent subgraphs(matplotlib and networkx are required)
 ```
-$ python -m gspan_mining.main -s 5000 -p True ./graphdata/graph.data
+python -m gspan_mining.main -s 5000 -p True ./graphdata/graph.data
 ```
 
 - Read graph data from ./graphdata/graph.data, and mine directed subgraphs given min support is 5000
 ```
-$ python -m gspan_mining.main -s 5000 -d True ./graphdata/graph.data
+python -m gspan_mining.main -s 5000 -d True ./graphdata/graph.data
 ```
 
 - Print help info
 ```
-$ python -m gspan_mining.main -h
+python -m gspan_mining.main -h
 ```
 
 The author also wrote [example code](https://github.com/betterenvi/gSpan/blob/master/main.ipynb) using Jupyter Notebook. Mining results and visualizations are presented. For detail, please refer to [main.ipynb](https://github.com/betterenvi/gSpan/blob/master/main.ipynb).
@@ -57,7 +70,7 @@ The author also wrote [example code](https://github.com/betterenvi/gSpan/blob/ma
 On the dataset [./graphdata/graph.data](https://github.com/betterenvi/gSpan/blob/master/graphdata/graph.data), running time is listed below:
 
 
-| Min support | Number of frequent subgraphs | time |
+| Min support | Number of frequent subgraphs | Time |
 | --- | --- | --- |
 | 5000 | 26 | 51.48 s |
 | 3000 | 52 | 69.07 s |
