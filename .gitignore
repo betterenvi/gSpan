@@ -34,3 +34,6 @@ nohup.out
 *.docx
 *.pdf
 requirement.txt
+build/*
+dist/*
+gspan_mining.egg-info/*
