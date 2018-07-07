@@ -24,7 +24,7 @@ cd gSpan
 ```
 Second, run: 
 ```sh
-python -m gspan_mining.main [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d True/False] [-v True/False] [-p True/False] [-w True/False] [-h] database_file_name 
+python -m gspan_mining [-s min_support] [-n num_graph] [-l min_num_vertices] [-u max_num_vertices] [-d True/False] [-v True/False] [-p True/False] [-w True/False] [-h] database_file_name 
 ```
 
 You can ***optionally*** install this project as a third-party library so that you can run it under ***any*** path using the same command above.
@@ -37,22 +37,22 @@ python setup.py install
 
 - Read graph data from ./graphdata/graph.data, and mine undirected subgraphs given min support is 5000
 ```
-python -m gspan_mining.main -s 5000 ./graphdata/graph.data
+python -m gspan_mining -s 5000 ./graphdata/graph.data
 ```
 
 - Read graph data from ./graphdata/graph.data, mine undirected subgraphs given min support is 5000, and visualize these frequent subgraphs(matplotlib and networkx are required)
 ```
-python -m gspan_mining.main -s 5000 -p True ./graphdata/graph.data
+python -m gspan_mining -s 5000 -p True ./graphdata/graph.data
 ```
 
 - Read graph data from ./graphdata/graph.data, and mine directed subgraphs given min support is 5000
 ```
-python -m gspan_mining.main -s 5000 -d True ./graphdata/graph.data
+python -m gspan_mining -s 5000 -d True ./graphdata/graph.data
 ```
 
 - Print help info
 ```
-python -m gspan_mining.main -h
+python -m gspan_mining -h
 ```
 
 The author also wrote [example code](https://github.com/betterenvi/gSpan/blob/master/main.ipynb) using Jupyter Notebook. Mining results and visualizations are presented. For detail, please refer to [main.ipynb](https://github.com/betterenvi/gSpan/blob/master/main.ipynb).

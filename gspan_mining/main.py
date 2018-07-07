@@ -11,8 +11,12 @@ from .config import parser
 from .gspan import gSpan
 
 
-def main(FLAGS):
+def main(FLAGS=None):
     """Run gSpan."""
+
+    if FLAGS is None:
+        FLAGS, _ = parser.parse_known_args(args=sys.argv[1:])
+
     if not os.path.exists(FLAGS.database_file_name):
         print('{} does not exist.'.format(FLAGS.database_file_name))
         sys.exit()
@@ -35,5 +39,4 @@ def main(FLAGS):
 
 
 if __name__ == '__main__':
-    FLAGS, _ = parser.parse_known_args(args=sys.argv[1:])
-    main(FLAGS)
+    main()
