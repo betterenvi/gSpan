@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="gspan_mining",
-    version="0.2.1",
+    version="0.2.2",
     author="Qingying Chen",
     author_email="qychen.pku@gmail.com",
     description="Implementation of frequent subgraph mining algorithm gSpan",
