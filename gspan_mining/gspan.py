@@ -371,8 +371,8 @@ class gSpan(object):
                         g.vertices[e1.to].vlb <= g.vertices[e2.to].vlb):
                     return e
             else:
-                if g.vertices[e1.frm].vlb < g.vertices[e2.to] or (
-                        g.vertices[e1.frm].vlb == g.vertices[e2.to] and
+                if g.vertices[e1.frm].vlb < g.vertices[e2.to].vlb or (
+                        g.vertices[e1.frm].vlb == g.vertices[e2.to].vlb and
                         e1.elb <= e.elb):
                     return e
             # if e1.elb < e.elb or (e1.elb == e.elb and
