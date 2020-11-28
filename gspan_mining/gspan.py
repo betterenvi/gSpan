@@ -352,7 +352,6 @@ class gSpan(object):
         if self._where:
             print('where: {}'.format(list(set([p.gid for p in projected]))))
         print('\n-----------------\n')
-        
 
     def _get_forward_root_edges(self, g, frm):
         result = []
