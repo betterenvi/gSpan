@@ -191,7 +191,8 @@ class gSpan(object):
                  is_undirected=True,
                  verbose=False,
                  visualize=False,
-                 where=False):
+                 where=False,
+                 max_mining=float('inf')):
         """Initialize gSpan instance."""
         self._database_file_name = database_file_name
         self.graphs = dict()
@@ -200,6 +201,7 @@ class gSpan(object):
         self._min_support = min_support
         self._min_num_vertices = min_num_vertices
         self._max_num_vertices = max_num_vertices
+        self._max_mining = max_mining
         self._DFScode = DFScode()
         self._support = 0
         self._frequent_size1_subgraphs = list()
@@ -348,9 +350,7 @@ class gSpan(object):
         if self._where:
             print('where: {}'.format(list(set([p.gid for p in projected]))))
         print('\n-----------------\n')
-        # abort if we mined to many subgraphs
-        if len(self._frequent_subgraphs) >= self._max_ngraphs:
-            return
+        
 
     def _get_forward_root_edges(self, g, frm):
         result = []
@@ -508,6 +508,9 @@ class gSpan(object):
         return res
 
     def _subgraph_mining(self, projected):
+        # abort if we mined to many subgraphs
+        if len(self._frequent_subgraphs) >= self._max_mining:
+            return self
         self._support = self._get_support(projected)
         if self._support < self._min_support:
             return
