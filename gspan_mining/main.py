@@ -13,7 +13,6 @@ from .gspan import gSpan
 
 def main(FLAGS=None):
     """Run gSpan."""
-
     if FLAGS is None:
         FLAGS, _ = parser.parse_known_args(args=sys.argv[1:])
 
@@ -30,7 +29,8 @@ def main(FLAGS=None):
         is_undirected=(not FLAGS.directed),
         verbose=FLAGS.verbose,
         visualize=FLAGS.plot,
-        where=FLAGS.where
+        where=FLAGS.where,
+        max_mining=FLAGS.max_mining,
     )
 
     gs.run()

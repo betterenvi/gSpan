@@ -348,6 +348,9 @@ class gSpan(object):
         if self._where:
             print('where: {}'.format(list(set([p.gid for p in projected]))))
         print('\n-----------------\n')
+        # abort if we mined to many subgraphs
+        if len(self._frequent_subgraphs) >= self._max_ngraphs:
+            return
 
     def _get_forward_root_edges(self, g, frm):
         result = []
