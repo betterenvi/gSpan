@@ -13,7 +13,6 @@ from .gspan import gSpan
 
 def main(FLAGS=None):
     """Run gSpan."""
-
     if FLAGS is None:
         FLAGS, _ = parser.parse_known_args(args=sys.argv[1:])
 
