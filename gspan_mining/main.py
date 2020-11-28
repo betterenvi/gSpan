@@ -30,7 +30,6 @@ def main(FLAGS=None):
         verbose=FLAGS.verbose,
         visualize=FLAGS.plot,
         where=FLAGS.where,
-        max_mining=FLAGS.max_mining,
     )
 
     gs.run()
