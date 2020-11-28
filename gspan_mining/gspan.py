@@ -335,13 +335,17 @@ class gSpan(object):
         print('\nSupport: {}'.format(self._support))
 
         # Add some report info to pandas dataframe "self._report_df".
+        _data = {
+            'support': [self._support],
+            'description': [display_str],
+            'num_vert': self._DFScode.get_num_vertices()
+        }
+        if self._where: # if where is set to true add the isomorph graphs to the report data
+            _data['isomorph_graphs'] = [list(set([p.gid for p in projected]))]
+        
         self._report_df = self._report_df.append(
             pd.DataFrame(
-                {
-                    'support': [self._support],
-                    'description': [display_str],
-                    'num_vert': self._DFScode.get_num_vertices()
-                },
+                _data,
                 index=[int(repr(self._counter)[6:-1])]
             )
         )
