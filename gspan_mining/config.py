@@ -39,6 +39,13 @@ parser.add_argument(
          'default inf'
 )
 parser.add_argument(
+    '-mm', '--max_mining',
+    type=int,
+    default=float('inf'),
+    help='int, upper bound for the number of generated subgraphs, '
+         'default inf'
+)
+parser.add_argument(
     '-d', '--directed',
     type=str2bool,
     default=False,
