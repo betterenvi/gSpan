@@ -41,6 +41,33 @@ class DFSedge(object):
                 self.to == other.to and
                 self.vevlb == other.vevlb)
 
+    def __lt__(self, other):
+        # if not self._is_valid_operand(other):
+        #     return NotImplemented
+    
+        is_self_backward = self.to > self.frm
+        is_other_forward = other.to < other.frm
+        # check if this is backward edge and other is forward
+        if is_self_backward and is_other_forward:
+            return True
+
+        tolbl, elbl, frmlbl = self.vevlb
+        other_tolbl, other_elbl, other_frmlbl = other.vevlb
+        # Case both are backward edges
+        if is_self_backward and (not is_other_forward):
+            if self.frm == other.frm:
+                return elbl < other_elbl
+            return self.frm < other.frm
+        # Case both forward
+        if (not is_self_backward) and is_other_forward:
+            if self.to == other.to and tolbl == other_tolbl and elbl == other_elbl:
+                return frmlbl < other_frmlbl
+            if self.to == other.to and tolbl == other_tolbl:
+                return elbl < other_elbl
+            if self.to == other.to:
+                return tolbl < other_tolbl
+            return self.to < other.to
+
     def __ne__(self, other):
         """Check if not equal."""
         return not self.__eq__(other)
@@ -191,7 +218,8 @@ class gSpan(object):
                  is_undirected=True,
                  verbose=False,
                  visualize=False,
-                 where=False):
+                 where=False,
+                 max_mining=float('inf')):
         """Initialize gSpan instance."""
         self._database_file_name = database_file_name
         self.graphs = dict()
@@ -200,6 +228,7 @@ class gSpan(object):
         self._min_support = min_support
         self._min_num_vertices = min_num_vertices
         self._max_num_vertices = max_num_vertices
+        self._max_mining = max_mining
         self._DFScode = DFScode()
         self._support = 0
         self._frequent_size1_subgraphs = list()
@@ -352,6 +381,7 @@ class gSpan(object):
         if self._where:
             print('where: {}'.format(list(set([p.gid for p in projected]))))
         print('\n-----------------\n')
+        
 
     def _get_forward_root_edges(self, g, frm):
         result = []
@@ -509,6 +539,9 @@ class gSpan(object):
         return res
 
     def _subgraph_mining(self, projected):
+        # abort if we mined to many subgraphs
+        if len(self._frequent_subgraphs) >= self._max_mining:
+            return self
         self._support = self._get_support(projected)
         if self._support < self._min_support:
             return
